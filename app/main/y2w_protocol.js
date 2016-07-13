@@ -15,11 +15,11 @@ var y2w_protocol = function (cb) {
 };
 
 
-ipc.on('get-protocol', function (event) {
-    y2w_protocol(function (data) {
-        event.sender.send('get-protocol', data);
-    });
-});
+//ipc.on('get-protocol', function (event) {
+//    y2w_protocol(function (data) {
+//        event.sender.send('get-protocol', data);
+//    });
+//});
 
 
 app.setAsDefaultProtocolClient(config.protocol);

@@ -6,7 +6,9 @@
   },
   "scripts": {
     "pack": "electron-packager ./app quick --all --version=1.2.5 --out=./pack --overwrite",
-    "dist": "rm -rf ./dist && build -mw"
+    "dist:win": "rm -rf ./dist && build -w",
+    "dist:mac": "rm -rf ./dist && build -m"
+
   },
   "build": {
     "asar": false,
@@ -32,9 +34,8 @@
       }
     },
     "win": {
-      "icon": "app/assets/win/1.ico",
-      "iconUrl": "http://localhost:8888/icon.ico",
-      "nsiTemplate": "dist/nsi-template/win/installer.nsi.tpl"
+      "icon": "app/assets/win/icon.ico",
+      "iconUrl": "http://121.40.215.56:8888/icon.ico"
     }
   }
 }

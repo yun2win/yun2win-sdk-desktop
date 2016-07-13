@@ -7,7 +7,10 @@
   "license": "CC0-1.0",
   "main": "main.js",
   "dependencies": {
-    "semver": "^5.1.1"
+    "async": "^2.0.0",
+    "node-localstorage": "^1.3.0",
+    "semver": "^5.1.1",
+    "titlebar": "^1.4.0"
   },
   "scripts": {
     "start": "electron main.js"

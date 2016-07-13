@@ -1,0 +1,55 @@
+::-webkit-scrollbar {
+    width: 0px;
+    height: 0px;
+    background-color: transparent;
+}
+
+html, #chatbody {
+    background: rgba(0, 0, 0, 0) !important;
+}
+
+html, body {
+    overflow: hidden;
+    background-color: rgba(0, 0, 0, 0) !important;
+}
+
+/*限制布局*/
+.wrapper {
+    min-height: 400px !important;
+    max-height: none !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    right: 0;
+}
+
+.right-panel {
+    width: initial !important;
+    right: 0;
+}
+
+/*拖动和禁止选择*/
+#j-wrapper, .left-panel .title, #chatName {
+    -webkit-user-select: none;
+    -webkit-app-region: drag;
+}
+
+.left-panel .title .logo {
+    display: none !important;
+}
+
+button, input, span {
+    -webkit-app-region: no-drag;
+}
+
+/*标题栏位置*/
+.titlebar {
+    padding: 6px 6px !important;
+    background-color: rgba(0, 0, 0, 0) !important;
+}
+
+.titlebar-stoplight {
+    position: absolute;
+    z-index: 999 !important;
+}
