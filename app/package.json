@@ -1,0 +1,18 @@
+{
+  "name": "Y2WRTCQuick",
+  "version": "0.0.1",
+  "description": "yun2win实时通信SDK快速接入",
+  "private": true,
+  "author": "QS",
+  "license": "CC0-1.0",
+  "main": "main.js",
+  "dependencies": {
+    "async": "^2.0.0",
+    "node-localstorage": "^1.3.0",
+    "semver": "^5.1.1",
+    "titlebar": "^1.4.0"
+  },
+  "scripts": {
+    "start": "electron main.js"
+  }
+}

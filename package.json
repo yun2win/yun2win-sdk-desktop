@@ -1,0 +1,41 @@
+{
+  "devDependencies": {
+    "electron-builder": "next",
+    "electron-prebuilt": "1.2.5",
+    "rimraf": "^2.5.2"
+  },
+  "scripts": {
+    "pack": "electron-packager ./app quick --all --version=1.2.5 --out=./pack --overwrite",
+    "dist:win": "rm -rf ./dist && build -w",
+    "dist:mac": "rm -rf ./dist && build -m"
+
+  },
+  "build": {
+    "asar": false,
+    "appId": "org.develar.quick",
+    "app-category-type": "public.app-category.graphics-design",
+    "mac": {
+      "icon": "app/assets/osx/icon.icns",
+      "background": "app/assets/osx/installer.png",
+      "dmg": {
+        "contents": [
+          {
+            "x": 410,
+            "y": 150,
+            "type": "link",
+            "path": "/Applications"
+          },
+          {
+            "x": 130,
+            "y": 150,
+            "type": "file"
+          }
+        ]
+      }
+    },
+    "win": {
+      "icon": "app/assets/win/icon.ico",
+      "iconUrl": "http://121.40.215.56:8888/icon.ico"
+    }
+  }
+}
