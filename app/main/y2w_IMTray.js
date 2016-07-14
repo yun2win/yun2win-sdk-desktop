@@ -9,27 +9,27 @@ const IMTray = function (controller) {
     this.controller = controller;
     this.tray = null;
     this.menu = Menu.buildFromTemplate([
-        {
-            label: '刷新',
-            accelerator: 'CmdOrCtrl+R',
-            click: function (item, focusedWindow) {
-                if (focusedWindow)
-                    focusedWindow.reload();
-            }
-        },
-        {
-            label: '开发者工具',
-            accelerator: (function () {
-                if (process.platform == 'darwin')
-                    return 'Alt+Command+I';
-                else
-                    return 'Ctrl+Shift+I';
-            })(),
-            click: function (item, focusedWindow) {
-                if (focusedWindow)
-                    focusedWindow.toggleDevTools();
-            }
-        },
+        //{
+        //    label: '刷新',
+        //    accelerator: 'CmdOrCtrl+R',
+        //    click: function (item, focusedWindow) {
+        //        if (focusedWindow)
+        //            focusedWindow.reload();
+        //    }
+        //},
+        //{
+        //    label: '开发者工具',
+        //    accelerator: (function () {
+        //        if (process.platform == 'darwin')
+        //            return 'Alt+Command+I';
+        //        else
+        //            return 'Ctrl+Shift+I';
+        //    })(),
+        //    click: function (item, focusedWindow) {
+        //        if (focusedWindow)
+        //            focusedWindow.toggleDevTools();
+        //    }
+        //},
         {label: '退出', click: app.quit}
     ]);
 

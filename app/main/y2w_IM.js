@@ -1,10 +1,12 @@
 const path = require('path');
 const electron = require('electron');
 const BrowserWindow = electron.BrowserWindow;
+const ipcMain = electron.ipcMain;
 
 const inject = require('../inject/config');
 const IMTray = require('./y2w_IMTray');
 const localStorage = require('./y2w_localstorage');
+const argv = require('./y2w_ArgvHandler');
 
 
 const IM = function () {
@@ -29,7 +31,6 @@ IM.prototype.createWindow = function () {
         }
     });
 
-
     self.window.on('closed', function () {
         self.window = null;
     });
@@ -41,6 +42,7 @@ IM.prototype.createWindow = function () {
     });
     //self.window.webContents.openDevTools();
 
+    this.autoLogin();
     this.load();
     this.createTray();
 };
@@ -62,29 +64,38 @@ IM.prototype.resizeWindow = function () {
 
         case 'main':
             isMain = true;
-            size = {width: 980, height: 580};
+            size = {width: 960, height: 640};
             minSize = {width: 500, height: 495};
             break;
     }
-    //size = {width: 980, height: 495};
 
     this.window.setResizable(isMain);
     this.window.setFullScreenable(isMain);
     this.window.setMaximizable(isMain);
     this.window.setMinimumSize(minSize.width, minSize.height);
     this.window.setContentSize(size.width, size.height, true);
-    //this.window.center();
     this.window.show();
 };
 
 IM.prototype.isLogged = function () {
-    localStorage.removeItem('y2wIMCurrentUserId');
+    //localStorage.removeItem('y2wIMCurrentUserId');
     return !!localStorage.getItem('y2wIMCurrentUserId');
 };
 
 IM.prototype.load = function () {
     var name = this.isLogged() ? 'main' : 'index';
     this.window.loadURL('file://' + __dirname + '/../render/web/' + name + '.html');
+};
+
+IM.prototype.autoLogin = function () {
+    if (!argv.hasUser())
+        return;
+
+    localStorage.removeItem('y2wIMCurrentUserId');
+    ipcMain.once('autoLogin', function (event) {
+        var parms = argv.getParms();
+        event.sender.send('autoLogin', parms);
+    });
 };
 
 IM.prototype.createTray = function () {
@@ -102,6 +113,9 @@ IM.prototype.show = function () {
 };
 
 IM.prototype.hide = function () {
+    if (!this.window) {
+        return;
+    }
     this.window.hide();
 };
 

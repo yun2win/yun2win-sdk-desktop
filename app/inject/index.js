@@ -24,8 +24,8 @@ window.addEventListener("load", function () {
 
 function login() {
     window.addEventListener("load", function () {
-        ipcRenderer.send('get-protocol');
-        ipcRenderer.on('get-protocol', function (event, data) {
+        ipcRenderer.send('autoLogin');
+        ipcRenderer.on('autoLogin', function (event, data) {
             $('#email').val(data.username);
             $('#password').val(data.password);
             Login.validate();
