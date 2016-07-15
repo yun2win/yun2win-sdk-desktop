@@ -1,6 +1,6 @@
 ﻿function RTCManager() {
     //var channel_url = "https://meeting-api.liyueyun.com:443/";//http://47.90.13.178:82/
-    var channel_url = "https://192.168.0.165:460/";//var channel_url = "https://meeting-hz-t.liyueyun.com:460/";
+    var channel_url = "http://121.43.99.132:80/";//var channel_url = "https://meeting-hz-t.liyueyun.com:460/";
     /*
    *创建群聊
    *callback回调方法

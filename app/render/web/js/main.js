@@ -1096,7 +1096,7 @@ var y2w = {
         });
         $("#callvideo_buttom_call").on("click", function () {
             $('.callvideo_bg').addClass('hide');
-            window.open("../yun2win/videoAudio.html?userid=" + currentUser.id + "&channelId=" + channelId + "&type=" + avcalltype, "_blank");
+            window.open("../yun2win/videoAudio.html?userid=" + currentUser.id + "&channelId=" + channelId + "&type=" + avcalltype + "&token=" + currentUser.imToken, "_blank");
         });
     }
 

@@ -1,3 +1,4 @@
+const URL = require('url');
 const path = require('path');
 const electron = require('electron');
 const BrowserWindow = electron.BrowserWindow;
@@ -7,6 +8,7 @@ const inject = require('../inject/config');
 const IMTray = require('./y2w_IMTray');
 const localStorage = require('./y2w_localstorage');
 const argv = require('./y2w_ArgvHandler');
+const openrtc = require('./y2w_OPENRTC');
 
 
 const IM = function () {
@@ -40,6 +42,21 @@ IM.prototype.createWindow = function () {
     self.window.webContents.on('dom-ready', function (event) {
         event.sender.insertCSS(inject.css);
     });
+    self.window.webContents.on('new-window', function (event, url) {
+        var query = URL.parse(url).query;
+        var parms = {};
+        query.split('&').forEach(function (arg) {
+            if (arg.indexOf('=') > -1) {
+                var parm = arg.split('=');
+                if (parm.length == 2) {
+                    parms[parm[0]] = parm[1];
+                }
+            }
+        });
+        if (parms.channelId && self.isLogged()) {
+            openrtc(parms);
+        }
+    });
     //self.window.webContents.openDevTools();
 
     this.autoLogin();
@@ -68,6 +85,7 @@ IM.prototype.resizeWindow = function () {
             minSize = {width: 500, height: 495};
             break;
     }
+    //size.width = 600;
 
     this.window.setResizable(isMain);
     this.window.setFullScreenable(isMain);
@@ -75,6 +93,17 @@ IM.prototype.resizeWindow = function () {
     this.window.setMinimumSize(minSize.width, minSize.height);
     this.window.setContentSize(size.width, size.height, true);
     this.window.show();
+};
+
+IM.prototype.autoLogin = function () {
+    if (!argv.hasParms())
+        return;
+
+    localStorage.removeItem('y2wIMCurrentUserId');
+    ipcMain.once('autoLogin', function (event) {
+        var parms = argv.getParms();
+        event.sender.send('autoLogin', parms);
+    });
 };
 
 IM.prototype.isLogged = function () {
@@ -87,16 +116,6 @@ IM.prototype.load = function () {
     this.window.loadURL('file://' + __dirname + '/../render/web/' + name + '.html');
 };
 
-IM.prototype.autoLogin = function () {
-    if (!argv.hasUser())
-        return;
-
-    localStorage.removeItem('y2wIMCurrentUserId');
-    ipcMain.once('autoLogin', function (event) {
-        var parms = argv.getParms();
-        event.sender.send('autoLogin', parms);
-    });
-};
 
 IM.prototype.createTray = function () {
     if (this.tray) {

@@ -4,7 +4,7 @@
     background-color: transparent;
 }
 
-html, #chatbody {
+#chatbody {
     background: rgba(0, 0, 0, 0) !important;
 }
 
@@ -24,6 +24,10 @@ html, body {
     right: 0;
 }
 
+.left-panel .title .logo {
+    display: none !important;
+}
+
 .right-panel {
     width: initial !important;
     right: 0;
@@ -35,11 +39,7 @@ html, body {
     -webkit-app-region: drag;
 }
 
-.left-panel .title .logo {
-    display: none !important;
-}
-
-button, input, span {
+button, input, span, a {
     -webkit-app-region: no-drag;
 }
 

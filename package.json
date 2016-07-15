@@ -7,8 +7,8 @@
   "scripts": {
     "pack": "electron-packager ./app quick --all --version=1.2.5 --out=./pack --overwrite",
     "dist:win": "rm -rf ./dist && build -w",
-    "dist:mac": "rm -rf ./dist && build -m"
-
+    "dist:mac": "rm -rf ./dist && build -m",
+    "dist": "rm -rf ./dist && build -mw"
   },
   "build": {
     "asar": false,

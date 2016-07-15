@@ -1,7 +1,14 @@
 const path = require('path');
 
 
-module.exports = {
-    protocol: 'y2w-im-quick',
-    trayIcon: path.join(__dirname, 'assets/osx/icon.png')
+var mac = {
+    trayIcon: path.join(__dirname, 'assets/osx/icon.png'),
+    RTCPath: path.join(process.resourcesPath, 'Y2WRTCQuick/Y2WRTCQuick.app')
 };
+
+var win = {
+    trayIcon: path.join(__dirname, 'assets/osx/icon.png'),
+    RTCPath: path.join(process.resourcesPath, 'Y2WRTCQuick/Y2WRTCQuick.exe')
+};
+
+module.exports = process.platform === 'darwin' ? mac : win;

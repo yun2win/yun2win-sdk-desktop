@@ -16,7 +16,7 @@ var argv = {
         //}
         return parms;
     },
-    hasUser: function () {
+    hasParms: function () {
         var parms = argv.getParms();
         return parms.username && parms.password;
     }
