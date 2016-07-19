@@ -1,7 +1,7 @@
 const app = require('electron').app || require('electron').remote.app;
-const LocalStorage = require('node-localstorage').LocalStorage;
+const Storage = require('dom-storage');
+const fs = require('fs');
 
-
-const localStorage = new LocalStorage(app.getPath('userData') + '/localStorage');
+var localStorage = new Storage(app.getPath('userData') + '/db.json', {strict: false, ws: '  '});
 
 module.exports = localStorage;

@@ -5,6 +5,9 @@ var name = path.basename(location.pathname, '.html');
 delete window.localStorage;
 window.localStorage = require('../main/y2w_localstorage');
 
+ipcRenderer.on('log', function (event, data) {
+    console.log(data);
+});
 
 switch (name) {
     case 'index':

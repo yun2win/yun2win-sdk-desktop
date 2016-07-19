@@ -1,7 +1,7 @@
 var childProcess = require('child_process');
 var config = require('../config');
 
-module.exports = function (parms) {
+module.exports = function (parms, send) {
     var path = '/Users/qs/Desktop/Y2WRTCQuick.app';
 
     path = config.RTCPath;
@@ -10,6 +10,14 @@ module.exports = function (parms) {
     for (var key in parms) {
         parmList.push(key + '=' + parms[key]);
     }
-    childProcess.exec('open ' + path + ' --args ' + parmList.join(' '));
+
+
+    var cmd = process.platform === 'darwin' ? 'open' : 'start';
+    cmd += ' ' + path + ' --args ' + parmList.join(' ');
+
+    var child = childProcess.exec(cmd);
+
+    send('log', cmd);
+    send('log', child);
 };
 

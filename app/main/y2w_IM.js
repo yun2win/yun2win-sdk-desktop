@@ -54,7 +54,7 @@ IM.prototype.createWindow = function () {
             }
         });
         if (parms.channelId && self.isLogged()) {
-            openrtc(parms);
+            openrtc(parms, self.window.webContents.send);
         }
     });
     //self.window.webContents.openDevTools();
