@@ -2,51 +2,46 @@ const electron = require('electron');
 const app = electron.app;
 const Tray = electron.Tray;
 const Menu = electron.Menu;
+const MenuItem = electron.MenuItem;
 const config = require('../config');
-const y2w_autoLauncher = require('./y2w_autoLauncher');
+const launcher = require('./y2w_autoLauncher');
 
 const IMTray = function (controller) {
 
     this.controller = controller;
     this.tray = null;
-    this.menu = Menu.buildFromTemplate([
-        {
-            label: '刷新',
-            accelerator: 'CmdOrCtrl+R',
-            click: function (item, focusedWindow) {
-                if (focusedWindow)
-                    focusedWindow.reload();
-            }
-        },
-        {
-            label: '开发者工具',
-            accelerator: (function () {
-                if (process.platform == 'darwin')
-                    return 'Alt+Command+I';
-                else
-                    return 'Ctrl+Shift+I';
-            })(),
-            click: function (item, focusedWindow) {
-                if (focusedWindow)
-                    focusedWindow.toggleDevTools();
-            }
-        },
-        {
-            label: '开机自启动',
-            type: 'checkbox',
-            checked: y2w_autoLauncher.isEnable(),
-            click: function (event) {
-                y2w_autoLauncher.setEnable(event.checked);
-            }
-        },
-        {
-            type: 'separator'
-        },
-        {
-            label: '退出',
-            click: app.quit
+    this.menu = new Menu();
+    this.menu.append(new MenuItem({
+        label: '刷新',
+        click: function (item, focusedWindow) {
+            if (focusedWindow)
+                focusedWindow.reload();
         }
-    ]);
+    }));
+    this.menu.append(new MenuItem({
+        label: '开发者工具',
+        click: function (item, focusedWindow) {
+            if (focusedWindow)
+                focusedWindow.toggleDevTools();
+        }
+    }));
+    this.menu.append(new MenuItem({
+        label: '开机自启动',
+        type: 'checkbox',
+        checked: launcher.isEnable(),
+        click: function (event) {
+            launcher.setEnable(event.checked, function (error, isEnabled) {
+                event.checked = isEnabled;
+            });
+        }
+    }));
+    this.menu.append(new MenuItem({
+        type: 'separator'
+    }));
+    this.menu.append(new MenuItem({
+        label: '退出',
+        click: app.quit
+    }));
 
     this.init();
 };
@@ -64,5 +59,8 @@ IMTray.prototype.init = function () {
     });
 };
 
+IMTray.prototype.setTitle = function (title) {
+    this.tray.setTitle(title);
+};
 
 module.exports = IMTray;

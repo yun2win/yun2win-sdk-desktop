@@ -9,11 +9,6 @@ var argv = {
                 }
             }
         });
-
-        //parms = {
-        //    username: '3@qq.com',
-        //    password: '111111'
-        //}
         return parms;
     },
     hasParms: function () {

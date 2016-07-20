@@ -27,6 +27,7 @@ var y2wIMBridge = function(user){
         syncing: 1,
         repeat: 2
     }
+
     this.getSyncStatus = function(syncObj){
         var key;
         switch(syncObj.type){
@@ -78,6 +79,8 @@ var y2wIMBridge = function(user){
      * @param syncObj
      * @param cb
      */
+
+
     this.handleSync_Message = function(syncObj, cb){
         var that = this;
         var foo = syncObj.sessionId.split('_');
@@ -322,6 +325,10 @@ var y2wIMBridge = function(user){
         }
     }
     this.onMessage = function(obj){
+        if (Notification.permission == 'granted') {
+            new Notification('yun2win', {body: '您有一条新消息'});
+        }
+
         var that = currentUser.y2wIMBridge;
         var message = obj.message;
         if(obj.cmd == 'sendMessage'){

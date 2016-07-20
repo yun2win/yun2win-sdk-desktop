@@ -1,4 +1,6 @@
-var ipcRenderer = require('electron').ipcRenderer;
+var electron = require('electron');
+var ipcRenderer = electron.ipcRenderer;
+var app = electron.remote.app;
 var path = require('path');
 var setTitleBar = require('./js/titlebar');
 var name = path.basename(location.pathname, '.html');
@@ -6,7 +8,7 @@ delete window.localStorage;
 window.localStorage = require('../main/y2w_localstorage');
 
 ipcRenderer.on('log', function (event, data) {
-    console.log(data);
+    console.log('log:', data);
 });
 
 switch (name) {
@@ -22,11 +24,15 @@ switch (name) {
 
 window.addEventListener("load", function () {
     setTitleBar(document.body);
+
+    $('title').text(app.getName());
 });
 
 
 function login() {
     window.addEventListener("load", function () {
+        ipcRenderer.send('badge-changed', 1);
+
         ipcRenderer.send('autoLogin');
         ipcRenderer.on('autoLogin', function (event, data) {
             $('#email').val(data.username);
@@ -39,4 +45,24 @@ function login() {
 
 function main() {
     window.async = require('async');
+
+    window.addEventListener("load", function () {
+
+        var clear = y2w.clearUnRead;
+        y2w.clearUnRead = function () {
+            clear.apply(this, arguments);
+            badgeChanged();
+        };
+
+        var render = y2w.tab.userConversationPanel.render;
+        y2w.tab.userConversationPanel.render = function () {
+            render.apply(this, arguments);
+            badgeChanged();
+        };
+
+        function badgeChanged() {
+            var count = y2w.tab.getUnreadCount();
+            ipcRenderer.send("badge-changed", count);
+        }
+    });
 }

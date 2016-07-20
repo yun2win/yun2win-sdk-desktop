@@ -1,6 +1,7 @@
 const URL = require('url');
 const path = require('path');
 const electron = require('electron');
+const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
 const ipcMain = electron.ipcMain;
 
@@ -57,11 +58,19 @@ IM.prototype.createWindow = function () {
             openrtc(parms, self.window.webContents.send);
         }
     });
+    ipcMain.on('badge-changed', function (event, count) {
+        var badge = count ? count + '' : '';
+        if (process.platform == "darwin") {
+            app.dock.setBadge(badge);
+        }
+
+        self.tray.setTitle(badge);
+    });
     //self.window.webContents.openDevTools();
 
+    this.createTray();
     this.autoLogin();
     this.load();
-    this.createTray();
 };
 
 IM.prototype.resizeWindow = function () {
@@ -95,6 +104,14 @@ IM.prototype.resizeWindow = function () {
     this.window.show();
 };
 
+
+IM.prototype.createTray = function () {
+    if (this.tray) {
+        return;
+    }
+    this.tray = new IMTray(this);
+};
+
 IM.prototype.autoLogin = function () {
     if (!argv.hasParms())
         return;
@@ -114,14 +131,6 @@ IM.prototype.isLogged = function () {
 IM.prototype.load = function () {
     var name = this.isLogged() ? 'main' : 'index';
     this.window.loadURL('file://' + __dirname + '/../render/web/' + name + '.html');
-};
-
-
-IM.prototype.createTray = function () {
-    if (this.tray) {
-        return;
-    }
-    this.tray = new IMTray(this);
 };
 
 IM.prototype.show = function () {
