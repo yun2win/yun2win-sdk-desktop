@@ -31,8 +31,6 @@ window.addEventListener("load", function () {
 
 function login() {
     window.addEventListener("load", function () {
-        ipcRenderer.send('badge-changed', 1);
-
         ipcRenderer.send('autoLogin');
         ipcRenderer.on('autoLogin', function (event, data) {
             $('#email').val(data.username);
