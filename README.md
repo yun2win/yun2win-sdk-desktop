@@ -23,9 +23,8 @@ Yun2win为企业和开发者提供最安全的即时通讯(IM)云服务和基于
 -
 ### 快速集成
 
-##### 1.现有应用添加IM功能 :
-	把编译好的可执行文件作为静态文件加入应用工程内，需要时以独立应用身份运行。
-    调用方法:
+#### 1.现有应用添加IM功能 :
+把编译好的可执行文件作为静态文件加入应用工程内，需要时以独立应用身份运行。调用方法:
 ```
 Objective-C:
 
@@ -39,8 +38,8 @@ C#
 System.Diagnostics.Process.Start("\\\\psf\\Home\\Documents\\Y2WIMQuickStart-Electron\\dist\\win-unpacked\\Y2WRTCQuick.exe", "username=111@qq.com password=111111");
 ```
     
-##### 2.开始一个新的应用
-    在此源码基础上修改进行二次开发，并修改icon、签名等信息后自行编译。
+#### 2.开始一个新的应用
+在此源码基础上修改进行二次开发，并修改icon、签名等信息后自行编译。
 
 
 -
