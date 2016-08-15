@@ -9,7 +9,7 @@ const inject = require('../inject/config');
 const IMTray = require('./y2w_IMTray');
 const localStorage = require('./y2w_localstorage');
 const argv = require('./y2w_ArgvHandler');
-const openrtc = require('./y2w_OPENRTC');
+const openrtc = require('./y2w_openRTC');
 
 
 const IM = function () {
@@ -54,7 +54,7 @@ IM.prototype.createWindow = function () {
                 }
             }
         });
-        if (parms.channelId && self.isLogged()) {
+        if (parms.channelSign && self.isLogged()) {
             openrtc(parms, self.window.webContents.send);
         }
     });
@@ -63,10 +63,9 @@ IM.prototype.createWindow = function () {
         if (process.platform == "darwin") {
             app.dock.setBadge(badge);
         }
-
         self.tray.setTitle(badge);
     });
-    //self.window.webContents.openDevTools();
+    // self.window.webContents.openDevTools();
 
     this.createTray();
     this.autoLogin();

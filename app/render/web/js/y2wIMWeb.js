@@ -1606,8 +1606,10 @@ var Users = (function(){
         this.remote = usersRemoteSingleton.getInstance(this);
 
         this.getCurrentUser = function(){
-            if(this.localStorage.getCurrentUserId() == null)
-                throw 'currentUserId is null, pls relogin!';
+            if (this.localStorage.getCurrentUserId() == null) {
+                alert('您登录的信息已过期,请重新登录!');
+                y2w.logout();
+            }
             if(!_list){
                 _list = this.localStorage.getUsers(this.localStorage.getCurrentUserId());
                 for(var k in _list){
