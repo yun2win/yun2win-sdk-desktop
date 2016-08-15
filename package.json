@@ -13,7 +13,6 @@
   "build": {
     "asar": false,
     "appId": "org.develar.quick",
-    "app-category-type": "public.app-category.graphics-design",
     "mac": {
       "icon": "app/assets/osx/icon.icns",
       "background": "app/assets/osx/installer.png",

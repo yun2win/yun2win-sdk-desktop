@@ -12,13 +12,6 @@ const IMTray = function (controller) {
     this.tray = null;
     this.menu = new Menu();
     this.menu.append(new MenuItem({
-        label: '刷新',
-        click: function (item, focusedWindow) {
-            if (focusedWindow)
-                focusedWindow.reload();
-        }
-    }));
-    this.menu.append(new MenuItem({
         label: '开发者工具',
         click: function (item, focusedWindow) {
             if (focusedWindow)
