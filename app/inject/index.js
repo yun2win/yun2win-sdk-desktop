@@ -24,7 +24,6 @@ switch (name) {
 
 window.addEventListener("load", function () {
     setTitleBar(document.body);
-
     $('title').text(app.getName());
 });
 
@@ -62,5 +61,10 @@ function main() {
             var count = y2w.tab.getUnreadCount();
             ipcRenderer.send("badge-changed", count);
         }
+    });
+
+    ipcRenderer.on('download', function (event, data) {
+        var a = "a[href='"+data.url+"']";
+        $(a).children('.downloading').css({display: data.isDownloading?'block':'none'});
     });
 }

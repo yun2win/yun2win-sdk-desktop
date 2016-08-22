@@ -1,7 +1,7 @@
 const childProcess = require('child_process');
 const config = require('../config');
 
-module.exports = function (parms, send) {
+module.exports = function (parms) {
 
     // var path = '/Users/qs/Desktop/Y2WRTCQuick.app';
 

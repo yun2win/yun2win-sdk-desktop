@@ -1,3 +1,4 @@
+const fs = require('fs');
 const URL = require('url');
 const path = require('path');
 const electron = require('electron');
@@ -56,13 +57,26 @@ IM.prototype.createWindow = function () {
             }
         });
         if (parms.channelSign && self.isLogged()) {
-            openrtc(parms, self.window.webContents.send);
+            openrtc(parms);
         }
     });
     self.window.webContents.session.on('will-download', function (event, item) {
-        var savePath = path.join(app.getPath('downloads'), item.getFilename());
+
+        var url = item.getURL();
+        var id = url.match(/attachments\/[0-9]+\/content/)[0].replace('attachments/', '').replace('/content', '');
+        var savePath = path.join(app.getPath('downloads'), id, item.getFilename());
+
+        if (fs.existsSync(savePath)) {
+            shell.showItemInFolder(savePath);
+            return item.cancel();
+        }
+
+        self.window.webContents.send('download', {url: url, isDownloading: true});
+
         item.setSavePath(savePath);
-        item.on('done', function(e, state) {
+        item.on('done', function (e, state) {
+            self.window.webContents.send('download', {url: url, isDownloading: false});
+
             if (state == "completed") {
                 shell.showItemInFolder(savePath);
             } else {
