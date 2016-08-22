@@ -64,7 +64,7 @@ IM.prototype.createWindow = function () {
         item.setSavePath(savePath);
         item.on('done', function(e, state) {
             if (state == "completed") {
-                shell.openItem(savePath);
+                shell.showItemInFolder(savePath);
             } else {
                 console.log("Download is cancelled or interrupted that can't be resumed");
             }
