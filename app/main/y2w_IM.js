@@ -2,6 +2,7 @@ const URL = require('url');
 const path = require('path');
 const electron = require('electron');
 const app = electron.app;
+const shell = electron.shell;
 const BrowserWindow = electron.BrowserWindow;
 const ipcMain = electron.ipcMain;
 
@@ -57,6 +58,17 @@ IM.prototype.createWindow = function () {
         if (parms.channelSign && self.isLogged()) {
             openrtc(parms, self.window.webContents.send);
         }
+    });
+    self.window.webContents.session.on('will-download', function (event, item) {
+        var savePath = path.join(app.getPath('downloads'), item.getFilename());
+        item.setSavePath(savePath);
+        item.on('done', function(e, state) {
+            if (state == "completed") {
+                shell.openItem(savePath);
+            } else {
+                console.log("Download is cancelled or interrupted that can't be resumed");
+            }
+        });
     });
     ipcMain.on('badge-changed', function (event, count) {
         var badge = count ? count + '' : '';

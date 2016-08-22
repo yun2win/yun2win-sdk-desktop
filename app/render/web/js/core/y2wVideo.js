@@ -1,5 +1,5 @@
 ﻿function RTCManager() {
-    // var channel_url = "https://meeting-api.liyueyun.com:80/";//http://47.90.13.178:82/
+    //var channel_url = "http://meeting-api.liyueyun.com:80/";//http://47.90.13.178:82/
     var channel_url = "http://meeting-hz-t.liyueyun.com:88/";
     //var channel_url = "http://192.168.0.135:88/";
       var room_url = "http://121.40.215.56:18080/";

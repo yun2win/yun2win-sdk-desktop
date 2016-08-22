@@ -53,3 +53,10 @@ button, input, span, a {
     position: absolute;
     z-index: 999 !important;
 }
+
+
+
+
+#j-videoType, #j-audioType {
+    display: none;
+}
