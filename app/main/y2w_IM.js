@@ -40,25 +40,29 @@ IM.prototype.createWindow = function () {
         self.window = null;
     });
     self.window.webContents.on('did-finish-load', function () {
-        self.resizeWindow();
+        // self.resizeWindow();
     });
     self.window.webContents.on('dom-ready', function (event) {
         event.sender.insertCSS(inject.css);
+        self.resizeWindow();
     });
     self.window.webContents.on('new-window', function (event, url) {
-        var query = URL.parse(url).query;
-        var parms = {};
-        query.split('&').forEach(function (arg) {
-            if (arg.indexOf('=') > -1) {
-                var parm = arg.split('=');
-                if (parm.length == 2) {
-                    parms[parm[0]] = parm[1];
-                }
-            }
-        });
-        if (parms.channelSign && self.isLogged()) {
-            openrtc(parms);
-        }
+        event.preventDefault();
+
+        shell.openExternal(url);
+        // var query = URL.parse(url).query;
+        // var parms = {};
+        // query.split('&').forEach(function (arg) {
+        //     if (arg.indexOf('=') > -1) {
+        //         var parm = arg.split('=');
+        //         if (parm.length == 2) {
+        //             parms[parm[0]] = parm[1];
+        //         }
+        //     }
+        // });
+        // if (parms.channelSign && self.isLogged()) {
+        //     openrtc(parms);
+        // }
     });
     self.window.webContents.session.on('will-download', function (event, item) {
 
