@@ -34,14 +34,15 @@ html, body {
 }
 
 /*拖动和禁止选择*/
-#j-wrapper, .left-panel .title, #chatName {
+#j-wrapper, .left-panel, #chatTitle {
     -webkit-user-select: none;
     -webkit-app-region: drag;
 }
 
-button, input, span, a {
+button, input, span, a, img {
     -webkit-app-region: no-drag;
 }
+
 
 /*标题栏位置*/
 .titlebar {
