@@ -263,6 +263,18 @@ body {
     width: 100%;
     height: 100%;
 }
+.mask .browserMaskUploading{
+    display: block;
+    position: absolute;
+    left: calc(50% - 100px);
+    top: calc(50% - 50px);
+    font-size: 40px;
+    color: #fff;
+    width: 200px;
+    height:100px;
+    line-height: 100px;
+    text-align: center;
+}
 .img-wrap {
     width: 610px;
     height: 500px;
@@ -1271,7 +1283,7 @@ width: 40px;
 .left-panel .tab a{
     display: inline-block;
     float: left;
-    width: 33.3%;
+    width: 25%;
     margin: 8px 0;
     text-align: center;
 }
@@ -1297,6 +1309,12 @@ width: 40px;
 }
 .left-panel .tab a span.group.cur{
     background: url('../images/group_active.png') no-repeat;
+}
+.left-panel .tab a span.apps{
+    background: url('../images/apps.png') no-repeat;
+}
+.left-panel .tab a span.apps.cur{
+    background: url('../images/apps_active.png') no-repeat;
 }
 .left-panel .tab-panel{
     position: absolute;
@@ -1426,6 +1444,12 @@ width: 40px;
 .left-panel .tab-panel .list .item.alpha.active{
     background-color: #1cb6b6;
 }
+.left-panel .tab-panel .list .empty{
+    text-align: center;
+    line-height: 60px;
+    color: #fff;
+}
+
 
 .avatar-tab{
     width: 36px;
@@ -1733,6 +1757,8 @@ width: 40px;
     -moz-border-radius: 0 0 5px 5px;
 }
 
+.chat-editor #j-videoType,
+.chat-editor #j-audioType{display: none;}
 /*-------------------选择器-------------------*/
 .selector{
     width: 480px;
@@ -1792,6 +1818,26 @@ width: 40px;
     top: 30px;
     left: 35px;
 }
+.selector .breadcrumb{
+    padding: 8px 15px;
+    list-style: none;
+    border-bottom: solid 1px #f5f5f5;
+}
+.selector .breadcrumb>li{
+    display: inline-block;
+}
+.selector .breadcrumb>li+li:before {
+    padding: 0 5px;
+    color: #ccc;
+    content: "/\00a0";
+}
+.selector .breadcrumb>li a{
+    color: #428bca;
+    text-decoration: none;
+}
+.selector .breadcrumb>.active {
+    color: #777;
+}
 .selector .list{
     height: 486px;
     overflow-y: auto;
@@ -1842,6 +1888,7 @@ width: 40px;
 }
 .selector .list-item .info{
     overflow: hidden;
+    position: relative;
 }
 .selector .list-item .info .name{
     font-weight: 400;
@@ -1852,6 +1899,30 @@ width: 40px;
     text-overflow: ellipsis;
     white-space: nowrap;
     word-wrap: normal;
+}
+.selector .list-item .info .folder{
+    width: 32px;
+    height: 32px;
+    background: url('../images/file.png') no-repeat;
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 4px;
+}
+.selector .list-item .info .folder:hover {
+    background: url('../images/file_hover.png') no-repeat;
+}
+.selector .list-item .info .folder:active {
+    background: url('../images/file_active.png') no-repeat;
+}
+.selector .list-item .info .folder-disabled{
+    width: 32px;
+    height: 32px;
+    background: url('../images/file.png') no-repeat;
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 4px;
 }
 .selector .btn{
     position: absolute;
@@ -2081,7 +2152,7 @@ width: 40px;
     overflow: hidden;
     white-space: normal;
     word-wrap: break-word;
-    word-break: break-all;
+    word-break: normal;
     font-size: 15px;
     z-index: 2;
 }
@@ -2525,16 +2596,32 @@ width: 40px;
 
 
 .browser{
-    width:708px;
-    height: 669px;
     z-index:99;
     position: absolute;
-    top:0px;
-    background: #e3efef;
+    background: #fff;
     border-radius: 0 6px 6px 0;
     -webkit-border-radius: 0 6px 6px 0;
     overflow: hidden;
+    right: 0px;
+    left: 0px;
+    top: 0px;
+    bottom: 0px;
 }
+.browser-over{
+    z-index:100;
+    position: absolute;
+    background: #fff;
+    border-radius: 0 6px 6px 0;
+    -webkit-border-radius: 0 6px 6px 0;
+    overflow: hidden;
+    right: 0px;
+    left: 0px;
+    top: 0px;
+    bottom: 0px;
+}
+.browser-over p{display: block; width:200px; margin: 250px auto; text-align: center;}
+.browser-over i{  font-size:30px; color:#999;}
+.browser-over span{ display: block; line-height: 40px; font-size:14px;}
 .browser .toolbar{
     position: absolute;
     top: 0;
@@ -2579,16 +2666,17 @@ width: 40px;
     width: 100%;
     top:40px;
     bottom:0px;
-    background: #e3efef;
+    background: #fff;
 }
 .browser .container iframe{
     width: 100%;
     height:100%;
-    background: #e3efef;
+    background: #fff;
 }
 .browser .toolbar .opbtns{
 
 }
+
 .browser .toolbar .opbtns .opbtn{
     float: right;
     margin-left: 2px;
@@ -2597,3 +2685,28 @@ width: 40px;
 }
 .browser .toolbar .opbtns .opbtn img{ float: left;  height:16px;  margin: 12px 2px; }
 .browser .toolbar .opbtns .opbtn span{ }
+.browser .toolbar .downbtns{
+    position: absolute;
+    width: 100px;
+    z-index: 100;
+    top: 40px;
+    right: 0px;
+}
+.browser .downbtnOver{position: fixed; left:0; top:0; right:0; bottom:0; background: #fff; opacity: .0; z-index: 99;}
+.browser .toolbar .downbtns .opbtn{ width:100%; text-align: center; padding:0;}
+
+/*-------------------*/
+@font-face {font-family: 'iconfont';
+    src: url('../iconfont/iconfont.eot'); /* IE9*/
+    src: url('../iconfont/iconfont.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+    url('../iconfont/iconfont.woff') format('woff'), /* chrome、firefox */
+    url('../iconfont/iconfont.ttf') format('truetype'), /* chrome、firefox、opera、Safari, Android, iOS 4.2+*/
+    url('../iconfont/iconfont.svg#iconfont') format('svg'); /* iOS 4.1- */
+}
+.iconfont{
+    font-family:"iconfont" !important;
+    font-size:16px;font-style:normal;
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-stroke-width: 0.2px;
+    -moz-osx-font-smoothing: grayscale;
+}

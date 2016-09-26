@@ -22,7 +22,7 @@
 
 					<span class="hide"><img src="images/pen.png" class="u-modify" id="showMyInfo"></span>
 					<span class="exit" title="退出" id="j-logout">退出</span>
-                    <span id="networkStatus" class="status"></span>
+                    <span id="networkStatus" cltabass="status"></span>
 
 				</div>
                 <div class="search" id="searchpanel">
@@ -39,6 +39,7 @@
 					<a href="javascript:;" data-type=0><span class="userconversation cur"></span></a>
 					<a href="javascript:;" data-type=1><span class="contact"></span></a>
 					<a href="javascript:;" data-type=2><span class="group"></span></a>
+					<a href="javascript:y2w.openChatBox('http://im.yun2win.com:443/','app');" data-type=0><span class="apps"></span></a>
 				</div>
                 <div class="tab-panel" id="userConversationPanel" data-type=0>
                     <ul class="list"></ul>
@@ -149,11 +150,17 @@
                     </div>
                 </div>
                 <div class="browser hide" id="browserpanel">
+                    <input type="text" id="d123" class="hide"/>
+                    <input type="file" id="browserImage" accept="image/*" class="hide"/>
+                    <input type="file" id="browserFile" accept="*/*" class="hide"/>
                     <div class="toolbar"  >
                         <span class="tbtn btn_back hoverBtn">‹</span>
                         <span class="tbtn btn_close hoverBtn">×</span>
                         <span class="name">这是标题</span>
                         <div class="opbtns" id="otherBtns">
+
+                        </div>
+                        <div class="opbtns downbtns hide" id="downBtns">
 
                         </div>
                         <div class="opbtns" id="defaultBtns">
@@ -162,6 +169,12 @@
                     </div>
                     <div class="container">
                         <iframe></iframe>
+                    </div>
+                    <div  class="browser-over hide">
+                        <p>
+                            <i class="iconfont">&#xe601;</i>
+                            <span>正在加载...</span>
+                        </p>
                     </div>
                 </div>
 			</div>
@@ -243,7 +256,7 @@
         <div class="u-card-over"></div>
         <div class="u-card">
             <div class="u-card-head">
-                <img class="u-head" src="http://im.yun2win.com/v1/attachments/242/content?access_token=Si4tznR61iELWyZd" />
+                <img class="u-head"   />
                 <span class="u-name hide">姓名</span>
             </div>
             <div class="u-card-attrs">
@@ -317,9 +330,14 @@
 		</div>
 	</div>
 	<div id="mask" class="mask hide"></div>
+    <div id="browserMask" class="mask hide">
+        <span class="browserMaskUploading">上传中...</span>
+    </div>
 	<!-- js-->
 	<script src="js/3rd/jquery-1.7.1.min.js"></script>
 	<script src="js/3rd/jquery-ui-datepicker.js"></script>
+    <script src="js/3rd/EventEmitter.js"></script>
+    <script src="js/3rd/My97DatePicker/WdatePicker.js"></script>
     <script src="js/3rd/jquery.contextmenu.js?v=0.1"></script>
     <script src="js/3rd/jquery.cropit.js"></script>
     <script src="js/3rd/async.js"></script>
@@ -382,7 +400,7 @@
         <div id="container"></div>
         <div class="map-close">×</div>
     </div>
-    <script type="text/javascript" src="http://webapi.amap.com/maps?v=1.3&key=83007dcd721230f38cbe90c94a8d121c"></script>
+
 
 
 </body>

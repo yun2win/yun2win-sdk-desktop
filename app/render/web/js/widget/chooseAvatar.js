@@ -48,7 +48,7 @@ chooseAvatar.prototype.showAndUpload = function(options){
                 return;
             }
             else{
-                var url = 'attachments/' + data.id + '/content';
+                var url = 'attachments/' + data.id + '/'+data.md5;
                 if(options.onChange)
                     options.onChange(null,url);
                 that.hide();
@@ -67,4 +67,4 @@ chooseAvatar.prototype.hide = function(){
     this.$chooseAvatar.addClass('hide');
     this.$choose.off('click');
     this.$save.off('click');
-}
+};

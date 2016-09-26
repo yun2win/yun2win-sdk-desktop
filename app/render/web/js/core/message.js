@@ -137,7 +137,7 @@ messagesRemote.prototype.sync = function(cb) {
                         return;
                     }
                     cb();
-                })
+                });
             }
             else
                 cb(err);

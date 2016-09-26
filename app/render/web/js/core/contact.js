@@ -164,6 +164,7 @@ var Contact = function(contacts, obj){
     this.updatedAt = new Date(obj['updatedAt']).getTime();
     this.userId = obj['userId'];
     this.user = Users.getInstance().get(this.userId);
+    this.account=obj['email'];
     if(this.user === undefined)
         this.user = Users.getInstance().create(obj['userId'], obj['name'], obj['email'], obj['avatarUrl']);
     this.avatarUrl = obj['avatarUrl'] || ' ';

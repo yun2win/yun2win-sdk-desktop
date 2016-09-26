@@ -4,22 +4,31 @@ var Browser=function(){
 
     this.dom=$("#browserpanel");
 
+    this.over=this.dom.find(".browser-over");
+
     this.toolbar=this.dom.find(".toolbar");
     this.btnBack=this.dom.find(".btn_back");
     this.btnClose=this.dom.find(".btn_close");
     this.lblname=this.dom.find(".name");
     this.btns=this.dom.find("#otherBtns");
+    this.downbtns=this.dom.find("#downBtns");
     this.defaultBtn=this.dom.find("#defaultBtns");
 
     this.iframe = this.dom.find("iframe");
     this.btnClose.on("click",this.hide.bind(this));
+    this.btnBack.on("click",this.back.bind(this));
 
     this.history = [];
     this.connect = new ActionConnect(this,this.iframe[0].contentWindow);
     this.color = {bg:"#fff",font:"#666",hoverbg:"#eee"};
+    this.image = this.dom.find('#browserImage');
+    this.file = this.dom.find("#browserFile");
+    this.browserMask = $("#browserMask");
     this._initEvent();
 
 };
+
+y2wInherits(Browser, EventEmitter);
 
 Browser.prototype._initEvent=function(){
     var that=this;
@@ -30,7 +39,7 @@ Browser.prototype._initEvent=function(){
         $(this).css("background-color","transparent");
     });
 
-    this.btns.on('click',function(e){
+    var clickEvent=function(e){
         var evt = e || window.event,
             target = evt.srcElement || evt.target;
 
@@ -44,36 +53,152 @@ Browser.prototype._initEvent=function(){
             var obj = JSON.parse(data);
             that.connect.request("onMenuClick", obj);
         }catch(ex){
-            console.error(ex);
+            //console.error(ex);
         }
+    };
+    this.btns.on('click',clickEvent);
+    this.downbtns.on('click',function(e){
+        clickEvent(e);
+        that.downbtns.addClass("hide");
+        if(that.downbtnOver)
+            that.downbtnOver.remove();
     });
 
+    this.image.on('change', function(){
+        var file = that.image[0].files[0];
+        if(!file)
+            return;
+        if(file.size==0) {
+            alert("不能传空文件");
+            return;
+        }
+
+        //如此便可重复多次上传同一份文件
+        that.image.val("");
+
+        //上传图片
+        var fileName = guid() + '.png';
+        that.uploadImage(fileName, file, function(err, result){
+            that.emit('uploadFileComplete', err, result);
+        })
+    });
+
+    setInterval(function(){
+        var span=that.over.find("span");
+        that.__time=(that.__time||0);
+        that.__time++;
+
+        if(that.__time>=4)
+            that.__time=0;
+
+        var txt="正在加载";
+        for(var i=0;i<that.__time;i++)
+            txt+=".";
+
+        span.text(txt);
+    },1000);
+
+    this.file.on('change', function(){
+        var file = that.file[0].files[0];
+        if(!file)
+            return;
+        if(file.size==0) {
+            alert("不能传空文件");
+            return;
+        }
+
+        //如此便可重复多次上传同一份文件
+        that.file.val("");
+
+        var ext = '';
+        var name = '';
+        if(file.name.lastIndexOf('.') >= 0) {
+            ext = file.name.substr(file.name.lastIndexOf('.') + 1);
+            name = file.name.substr(0, file.name.lastIndexOf('.'));
+        }
+        else
+            name = file.name;
+        //上传文件
+        var fileName = guid() + (ext.length > 0 ? '.' + ext : '');
+        that.uploadFile(fileName, file, name, ext, file.size, function(err, result){
+            that.emit('uploadFileComplete', err, result);
+        })
+    });
 };
 
-Browser.prototype.open=function(url){
+Browser.prototype.uploadImage = function(fileName, file, cb){
+    //开启遮罩
+    this.browserMask.removeClass('hide');
+    var fileReader = new FileReader();
+    fileReader.readAsDataURL(file);
+    fileReader.onload = this.onImageLoadSuccess.bind(this, fileName, cb);
+    fileReader.onerror = this.onImageLoadError.bind(this, cb)
+}
+
+Browser.prototype.onImageLoadSuccess = function(fileName, cb, e){
+    currentUser.attchments.uploadBase64Image(fileName, e.target.result, function(err, data) {
+        if (err)
+            cb('image upload err:' + err);
+
+        else {
+            var src = 'http://im.yun2win.com/v1/';
+            src += 'attachments/' + data.id + '/' + data.md5;
+            cb(null, [{
+                url: src,
+                thumbnailUrl: src
+            }]);
+        }
+    })
+}
+
+Browser.prototype.onImageLoadError = function(cb){
+    cb('image load error');
+}
+
+Browser.prototype.uploadFile = function(fileName, file, name, ext, size, cb){
+    //开启遮罩
+    this.browserMask.removeClass('hide');
+    var fileReader = new FileReader();
+    fileReader.readAsDataURL(file);
+    fileReader.onload = this.onFileLoadSuccess.bind(this, fileName, name, ext, size, cb);
+    fileReader.onerror = this.onFileLoadError.bind(this, cb)
+}
+
+Browser.prototype.onFileLoadSuccess = function(fileName, name, ext, size, cb, e){
+    currentUser.attchments.uploadBase64("application/octet-stream", fileName, e.target.result, function(err, data) {
+        if (err)
+            cb('file upload err:' + err);
+        else {
+            var src = 'http://im.yun2win.com/v1/';
+            src += 'attachments/' + data.id + '/' + data.md5;
+            cb(null, [{
+                url: src,
+                name: name,
+                ext: ext,
+                size: size,
+                time: data.createdAt
+            }]);
+        }
+    })
+};
+
+Browser.prototype.onFileLoadError = function(cb){
+    cb('file load error');
+};
+
+Browser.prototype.open=function(url,over){
     if(!url)
         return;
-    url= $.trim(url);
-    if(url.indexOf("http")!=0)
-        url="http://"+url;
-    this.history=[url];
-    this.show();
-    this.iframe.attr("src",url);
-    this.lblname.text(url);
+
+    if(over)
+        this.over.removeClass("hide");
+
+    this.history=[];
+    this.defaultBtn.find("a").attr("href",url).removeClass("hide");
     this.toolbar.css("background-color","#fff").css("color","#666");
     this.color = { bg:"#fff", font:"#666", hoverbg:"#eee" };
-    this.btns.empty();
-    this.defaultBtn.find("a").attr("href",url);
-
-    var that=this;
-    //setTimeout(function(){
-    //    that.sendMessage("fuck....");
-    //},5000);
-    setTimeout(function(){
-        that.connect.request("alert",'afwfewf',function(){
-            console.log('aba');
-        });
-    },2000);
+    this.lblname.text(url);
+    this.changeUrl(url);
 };
 Browser.prototype.show=function(){
     this.dom.removeClass("hide");
@@ -92,7 +217,32 @@ Browser.prototype.hide=function(){
     this.dom.addClass("hide");
     this.iframe.attr("src","");
 };
+Browser.prototype.back=function(){
+    var url= this.history.pop();
+    url=this.history.pop();
+    this.changeUrl(url);
+};
 
+Browser.prototype.didShow=function(cb){
+    this.over.addClass("hide");
+};
+Browser.prototype.changeUrl=function(url){
+    if(!url)
+        return;
+    url= $.trim(url);
+    if(url=="")
+        return;
+    if(url.indexOf("http")!=0)
+        url="http://"+url;
+
+    this.history.push(url);
+    this.iframe.attr("src",url);
+    this.btns.empty();
+    this.show();
+};
+Browser.prototype.openNew=function(url){
+    this.changeUrl(url);
+};
 Browser.prototype.changeTitle=function(title,cb){
     this.lblname.text(title);
     cb();
@@ -102,14 +252,40 @@ Browser.prototype.changeToolbarColor=function(bgcolor,hoverbgcolor,fontColor,cb)
     this.color.hoverbg=hoverbgcolor;
     this.color.font=fontColor;
     this.toolbar.css("background-color",bgcolor).css("color",fontColor);
+    this.downbtns.css("background-color",bgcolor);
     cb();
 };
 Browser.prototype.setMenus=function(menus,cb){
     var that=this;
+    this.btns.empty();
+    this.downbtns.empty();
+    var showMenuCount=1;
+    if(menus.length>showMenuCount) {
+        $("<div data-menu='' class='opbtn'><i class='iconfont'>&#xe600;</i></div>").appendTo(this.btns)
+            .on('mouseenter', function (e) {
+                $(this).css("background-color", that.color.hoverbg);
+            }).on('mouseleave', function (e) {
+                $(this).css("background-color", "transparent");
+            })
+            .on('click',function(){
+
+                that.downbtns.removeClass("hide");
+                that.downbtnOver=$("<div class='downbtnOver' />").appendTo(that.toolbar).click(function(){
+                    that.downbtnOver.remove();
+                    that.downbtns.addClass("hide");
+                });
+
+            });
+    }
     for(var i=0;i<menus.length;i++){
+
+        var parentBtns=this.btns;
+        if(menus.length>showMenuCount && i>0)
+            parentBtns=this.downbtns;
+
         var menu=menus[i];
         var d=$("<div data-menu='"+JSON.stringify(menu)+"' class='opbtn hoverBtn'></div>")
-            .appendTo(this.btns)
+            .appendTo(parentBtns)
             .on('mouseenter',function(e){
                 $(this).css("background-color",that.color.hoverbg);
             }).on('mouseleave',function(e){
@@ -128,6 +304,7 @@ Browser.prototype.setMenus=function(menus,cb){
         if(i!=menus.length-1)
             $("<div class='split'></div>").appendTo(this.btns);
     }
+    this.defaultBtn.addClass("hide");
     cb();
 };
 Browser.prototype.getCurrentUser=function(cb){
@@ -152,5 +329,144 @@ Browser.prototype.getCurrentUser=function(cb){
     }
     cb("无当前用户");
 };
+Browser.prototype.chooseDate=function(time, defaultTime, cb){
+    var format = 'yyyy-MM-dd';
+    if(time)
+        format = 'yyyy-MM-dd HH:mm';
+    $('#d123').val(defaultTime).removeClass('hide');
+    WdatePicker({
+        el:'d123',
+        dateFmt: format,
+        onpicked:function(){
+            $('#d123').addClass('hide');
+            cb(null, $('#d123').val());
+        },
+        oncleared:function(){
+            $('#d123').addClass('hide');
+            cb(null, $('#d123').val());
+        }
+    });
+};
+Browser.prototype.select=function(obj, cb){
+    var selectorConf = {};
+    selectorConf.title = obj.title;
+    var tab = {};
+    tab.type = 99;
+    tab.avatar = obj.avatar;
+    tab.selection = obj.mode == 'single' ? 0 : 1;
+    tab.hidden = {};
+    tab.selected = {};
+    if(obj.selected)
+        for(var i = 0; i < obj.selected.length; i++){
+            tab.selected[obj.selected[i]] = true;
+        }
+    tab.title =  "所有项";//obj.title;
+    tab.folder = obj.folder;
+    tab.selectFolder = !!obj.selectFolder;
+    tab.dataSource = obj.dataSource;
+    selectorConf.tabs = [ tab ];
+    selectorConf.onSelected = function (obj) {
+        console.log('selected:' + JSON.stringify(obj));
+        cb(null, obj.selected);
+    };
+    y2w.selector.show(selectorConf);
 
+};
+Browser.prototype.selectContact=function(obj,cb){
+    var selectorConf = {
+        title: obj.title,
+        tabs: [
+        ],
+        onSelected: function (obj) {
+
+            var list=[];
+            for(var i=0;i<obj.selected.length;i++) {
+                var id=obj.selected[i];
+                var o=currentUser.contacts.get(id);
+                if(obj) {
+                    var email= o.account;
+                    if(o.user.account && o.user.account!='')
+                        email=o.user.account;
+                    list.push({
+                        id: o.userId,
+                        name: o.name,
+                        avatarUrl: o.getAvatarUrl(),
+                        email: email
+                    });
+                }
+            }
+
+            console.log(list);
+            cb(null,list);
+        }
+    };
+
+    var tab={
+        type: y2w.selector.tabType.contact,
+        selection: obj.mode == 'single' ? 0 : 1,
+        hidden: {},
+    };
+    tab.selected = {};
+    if(obj.selected)
+        for(var i = 0; i < obj.selected.length; i++){
+            tab.selected[obj.selected[i]] = true;
+        }
+
+
+    selectorConf.tabs.push(tab);
+
+    y2w.selector.show(selectorConf);
+};
+Browser.prototype.openImage=function(obj){
+    alert(JSON.stringify(obj));
+};
+Browser.prototype.chooseImage = function(cb){
+    var that = this;
+    this.image.click();
+    this.removeAllListeners('uploadFileComplete');
+    this.on('uploadFileComplete', function(err, result){
+        that.browserMask.addClass('hide');
+        cb(err, result);
+    });
+};
+Browser.prototype.chooseFile = function(cb){
+    var that = this;
+    this.file.click();
+    this.removeAllListeners('uploadFileComplete');
+    this.on('uploadFileComplete', function(err, result){
+        that.browserMask.addClass('hide');
+        cb(err, result);
+    });
+};
+Browser.prototype.setData=function(key,data,cb){
+    try {
+        key=currentUser.id+"_"+key;
+        localStorage.setItem(key, data);
+        cb();
+    }catch(ex){
+        cb(ex);
+    }
+};
+Browser.prototype.getData=function(key,cb){
+    try{
+        key=currentUser.id+"_"+key;
+        var obj=localStorage.getItem(key);
+        cb(null,obj);
+    }
+    catch(ex){
+        cb(ex);
+    }
+}
+Browser.prototype.downloadFile = function(url, name, ext){
+    try{
+        var $browserIFrameForDownloadFire = $('#browserIFrameForDownloadFire');
+        if(!$browserIFrameForDownloadFire || $browserIFrameForDownloadFire.length == 0) {
+            $browserIFrameForDownloadFire = $('<iframe id="browserIFrameForDownloadFire" class="hide"></iframe>');
+            $browserIFrameForDownloadFire.appendTo($('body'));
+        }
+        $browserIFrameForDownloadFire[0].src = url;
+    }catch(e){
+
+    }
+}
 

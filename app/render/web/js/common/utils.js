@@ -7,7 +7,7 @@ var addEvent = function(node, type, callback){
     }else{
         node.attachEvent("on" + type, callback);
     }
-}
+};
 /**
  * 时间戳转化为日期（用于消息列表）
  * @return {string} 转化后的日期
@@ -131,7 +131,7 @@ var _$escape = (function(){
     var _reg = /<br\/?>$/,
         _map = {
             r:/\<|\>|\&|\r|\n|\s|\'|\"/g,
-            '<':'&lt;','>':'&gt;','&':'&amp;',' ':'&nbsp;',
+            '<':'&lt;','>':'&gt;','&':'&amp;','  ':'&nbsp; ',
             '"':'&quot;',"'":'&#39;','\n':'<br/>','\r':''
         };
     return function(_content){
@@ -212,4 +212,11 @@ console = {
             _console.info(msg);
     }
 
+};
+
+var y2wInherits = function(ctor, superCtor) {
+    ctor.super_ = superCtor;
+    ctor.prototype = Object.create(superCtor.prototype, {
+        constructor: { value: ctor, enumerable: false }
+    });
 };

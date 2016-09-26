@@ -22,8 +22,10 @@ emojier.prototype.addEmoji=function(e){
 
     var evt = e || window.event,
         target = evt.srcElement || evt.target;
-
-    y2w.$messageText.val(y2w.$messageText.val()+"["+$(target).attr("alt")+"]");
+    var alt=$(target).attr("alt");
+    if(!alt)
+        return;
+    y2w.$messageText.val(y2w.$messageText.val()+"["+alt+"]");
     y2w.$messageText.focus();
     this.hide();
 

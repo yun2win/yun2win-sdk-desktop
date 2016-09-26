@@ -793,6 +793,9 @@ var y2w = {
             to = this.$chatEditor.data('to'),
             fileInput = this.$fileInput.get(0),
             that = this;
+
+
+
         var file = fileInput.files[0];
         if(!file)
             return;
@@ -800,6 +803,10 @@ var y2w = {
             alert("不能传空文件");
             return;
         }
+
+        //如此便可重复多次上传同一份文件
+        this.$fileInput.val("");
+
         if(scene == 'group') {
             var sessionMember = currentUser.currentSession.members.getMember(currentUser.id);
             if (sessionMember.isDelete) {
@@ -1096,6 +1103,14 @@ var y2w = {
                 to: account,
                 type: scene
             });
+        }
+        else if(scene=="app"){
+            this.$chatEditor.data({
+                to: account,
+                type: scene
+            });
+            this.$rightPanel.find('.browser').removeClass('hide');
+            this.browser.open(account,true);
         }
         else if(scene=="url"){
             this.$rightPanel.find('.browser').removeClass('hide');

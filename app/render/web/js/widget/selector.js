@@ -8,8 +8,8 @@ var selector = function(){
     this.$tabs = $('<div class="tabs" id="selectorTabs"></div>').appendTo(this.$selector);
     this.$ok = $('<button class="btn btn-cancel radius4px j-chat chat hide">确定</button>').appendTo(this.$selector);
     this.$mask = $('#mask');
-    this.tabType = { contact: 0, group: 1,groupmembers:2,email:3 };
-    this.tabText = { 0: '选择联系人', 1: '选择群组',2:'选择群成员',3:'邮箱邀请'};
+    this.tabType = { contact: 0, group: 1,groupmembers:2, email:3, custom: 99 };
+    this.tabText = { 0: '选择联系人', 1: '选择群组', 2:'选择群成员', 3:'邮箱邀请'};
     this.selection = { single: 0, multiple: 1 };
 
     this.$close.on('click', this.close.bind(this));
@@ -24,6 +24,10 @@ selector.prototype.show = function(conf){
         this.$selector.find('.list').each(function(){
             $(this).remove();
         });
+        for(var i = 0; i < this.tabs.length; i++){
+            if(this.tabs[i].folderNav)
+                this.tabs[i].folderNav.destroy();
+        }
     }
     this.tabs = conf.tabs;
     for(var i = 0; i < this.tabs.length; i++){
@@ -31,19 +35,21 @@ selector.prototype.show = function(conf){
         this.tabs[i].hidden = this.tabs[i].hidden || {};
 
         var html = '';
+        var tabName = this.tabs[i].type == this.tabType.custom ? this.tabs[i].title : this.tabText[this.tabs[i].type];
         html += ['<a href="javascript:;" class="box-sizing tc tab' + i,
-            i == 0 ? ' cur' : '',
-            '" data-type="select' + this.tabText[this.tabs[i].type] + '">',
-            this.tabText[this.tabs[i].type],
+            //i == 0 ? ' cur' : '',
+            '" data-type="select' + tabName + '">',
+            tabName,
             '</a>'].join("");
         this.tabs[i].$tab = $(html);
         this.tabs[i].$tab.on('click', this.switchTab.bind(this, this.tabs[i]));
         this.$tabs.append(this.tabs[i].$tab[0]);
 
         html = '';
-        html += ['<ul class="list hide" data-type="select' + this.tabText[this.tabs[i].type] + '">',
+        html += ['<ul class="list hide" data-type="select' + tabName + '">',
             '</ul>'].join("");
         this.tabs[i].$list = $(html);
+        this.tabs[i].selector = this;
         this.$selector.append(this.tabs[i].$list[0]);
 
     }
@@ -56,20 +62,23 @@ selector.prototype.close = function(){
     this.$ok.removeClass('btn-ok').addClass('btn-cancel').addClass('hide').off('click');
 }
 selector.prototype.switchTab = function(tab){
-    tab.$tab.addClass('cur');
-    tab.$tab.siblings().removeClass('cur');
-    tab.$list.removeClass('hide').siblings('.list').addClass('hide');
-    tab.$list.empty();
-    if (tab.type === this.tabType.contact) {
-        this.renderContact(tab);
-    } else if (tab.type === this.tabType.group) {
-        this.renderGroup(tab);
-    } else if (tab.type === this.tabType.groupmembers) {
-        this.renderGroupMembers(tab);
-    } else if(tab.type== this.tabType.email){
-        this.renderEmail(tab);
+    if(!tab.$tab.attr('class') || tab.$tab.attr('class').indexOf('cur') < 0) {
+        tab.$tab.addClass('cur');
+        tab.$tab.siblings().removeClass('cur');
+        tab.$list.removeClass('hide').siblings('.list').addClass('hide');
+        tab.$list.empty();
+        if (tab.type === this.tabType.contact) {
+            this.renderContact(tab);
+        } else if (tab.type === this.tabType.group) {
+            this.renderGroup(tab);
+        } else if (tab.type === this.tabType.groupmembers) {
+            this.renderGroupMembers(tab);
+        } else if (tab.type == this.tabType.email) {
+            this.renderEmail(tab);
+        } else if (tab.type == this.tabType.custom) {
+            this.renderCustom(tab);
+        }
     }
-
 };
 selector.prototype.renderContact = function(tab) {
     var list = currentUser.contacts.getContacts();
@@ -83,7 +92,7 @@ selector.prototype.renderGroupMembers = function (tab) {
     var list =currentUser.currentSession.members.session.members.getMembers();
     this.buildList(tab, list);
 };
-selector.prototype.renderEmail=function(tab){
+selector.prototype.renderEmail = function(tab){
     this.$ok.addClass('hide').off('click');
     tab.$list.empty();
 
@@ -118,6 +127,12 @@ selector.prototype.renderEmail=function(tab){
     tab.$list.find(".j-invite-a").on("click",this.inviteEmail.bind(this,tab));
 
 };
+selector.prototype.renderCustom = function(tab){
+    if(tab.folder && !tab.folderNav){
+        tab.folderNav = new FolderNav(tab);
+    }
+    this.buildCustomList(tab, tab.dataSource);
+}
 selector.prototype.buildList = function(tab, list){
     var that = this;
     var html = '';
@@ -170,10 +185,10 @@ selector.prototype.buildList = function(tab, list){
         tab.$list.find('li').each(function () {
             $(this).on('click', function(){
                 var selected = [];
-                if(tab.type == that.tabType.group){
+                //if(tab.type == that.tabType.group){
                     var targetId = $(this).attr('data-id');
                     selected.push(targetId);
-                }
+                //}
 
                 that.onSelected({
                     type: tab.type,
@@ -184,23 +199,200 @@ selector.prototype.buildList = function(tab, list){
         });
     }
 }
+selector.prototype.buildCustomList = function(tab, list){
+    var that = this;
+    var html = '';
+    tab.$list.empty();
+    this.$ok.addClass('hide').off('click');
+    tab.$list.removeClass('multi');
+    for (var i = 0; i < list.length; i++) {
+        var dataId = list[i].id;
+        var hide = !!tab.hidden[dataId];
+        if(hide)
+            continue;
+        var checked = tab.selection == this.selection.multiple ? !!tab.selected[dataId] : false;
+        var avatarDOM = '';
+        if(tab.avatar) {
+            avatarDOM = '<span class="avatar avatar-selector';
+            var avatarUrl = list[i].avatarUrl;
+            if (avatarUrl && avatarUrl != '') {
+                avatarDOM += '"><img src="' + avatarUrl + '"/>';
+            }
+            else {
+                var index = Math.floor(100 * Math.random());
+                var imageUrl = list[i].folder ? defaultGroupImageUrl : defaultContactImageUrl;
+                avatarDOM += ' avatar-random-bg-' + index % avatarRandomBGColorCount + '"><img src="' + imageUrl + '"/>';
+            }
+            avatarDOM += '</span>';
+        }
+        var name = list[i].name;
+        var folder = '';
+        if(list[i].folder){
+            folder = '<span class="folder" isFolder="true" folder-id="' + dataId + '" folder-name="' + name + '"></span>';
+        }
+        html += ['<li class="list-item" tab-type="' + tab.type + '" data-id="' + dataId + '">',
+            tab.selection == this.selection.multiple ? '<div class="opt"><i class="unchecked' + (checked ? ' checked' : '') + '"/></div>' : '',
+            avatarDOM,
+            '<div class="info">',
+            '<h4 class="name">' + name + '</h4>',
+            folder,
+            '</div>',
+            '</li>'].join("");
+    }
+    tab.$list.append(html);
+    if(tab.selection == this.selection.multiple) {
+        tab.$list.find('li').each(function () {
+            var folder = $(this).find('span[isFolder="true"]');
+            if(folder.length > 0){
+                if(tab.selectFolder)
+                    $(this).on('click', that.toggleCheck.bind(this, that, tab));
+                var $folder = $(folder);
+                if(tab.selected[$folder.attr('folder-id')]){
+                    $folder.addClass('folder-disabled').removeClass('folder');
+                    $folder.on('click', function(event){
+                        event.stopPropagation();
+                    })
+                }
+                else{
+                    $folder.on('click', function(event){
+                        event.stopPropagation();
+                        $folder.removeClass('folder-disabled').addClass('folder');
+                        var folderId = $folder.attr('folder-id');
+                        var folderName = $folder.attr('folder-name');
+                        tab.folderNav.add(folderId, folderName);
+                        //切换新视图
+                        var result = that.queryDataSource(tab.dataSource, folderId);
+                        if(result.find)
+                            that.buildCustomList(tab, result.dataSource);
+                    })
+                }
+            }
+            else
+                $(this).on('click', that.toggleCheck.bind(this, that, tab));
+        });
+        tab.$list.addClass('multi');
+        this.$ok.removeClass('hide');
+    }
+    else{
+        tab.$list.find('li').each(function () {
+            var folder = $(this).find('span[isFolder="true"]');
+            if(folder.length > 0){
+                if(tab.selectFolder){
+                    $(this).on('click', function(){
+                        var selected = [];
+                        var targetId = $(this).attr('data-id');
+                        selected.push(targetId);
+
+                        that.onSelected({
+                            type: tab.type,
+                            selected: selected
+                        });
+                        that.close();
+                    });
+                }
+                var $folder = $(folder);
+                $folder.on('click', function(event){
+                    event.stopPropagation();
+                    $folder.removeClass('folder-disabled').addClass('folder');
+                    var folderId = $folder.attr('folder-id');
+                    var folderName = $folder.attr('folder-name');
+                    tab.folderNav.add(folderId, folderName);
+                    //切换新视图
+                    var result = that.queryDataSource(tab.dataSource, folderId);
+                    if(result.find)
+                        that.buildCustomList(tab, result.dataSource);
+                })
+            }
+            else{
+                $(this).on('click', function(){
+                    var selected = [];
+                    var targetId = $(this).attr('data-id');
+                    selected.push(targetId);
+
+                    that.onSelected({
+                        type: tab.type,
+                        selected: selected
+                    });
+                    that.close();
+                });
+            }
+        });
+    }
+}
+selector.prototype.queryDataSource = function(dataSource, id){
+    var that = this;
+    var result = {
+        find: false
+    }
+    for(var i = 0; i < dataSource.length; i++){
+        var item = dataSource[i];
+        if(item.id == id){
+            result.find = true;
+            result.dataSource = item.children;
+            return result;
+        }
+        if(item.folder){
+            result = that.queryDataSource(item.children, id);
+            if(result.find)
+                return result;
+        }
+    }
+    return result;
+}
 selector.prototype.toggleCheck = function(that, tab){
     var $this = $(this);
     var $i = $this.find('.opt i');
-    if($i.attr('class') == 'unchecked')
+    var id = $i.parent().parent().attr('data-id');
+    if($i.attr('class') == 'unchecked') {
         $i.addClass('checked');
-    else
+        tab.selected[id] = true;
+        var folder = $i.parent().parent().find('span[isFolder="true"]');
+        if(folder.length > 0){
+            var $folder = $(folder);
+            $folder.off('click');
+            $folder.addClass('folder-disabled').removeClass('folder');
+            $folder.on('click', function(event){
+                event.stopPropagation();
+            })
+        }
+    }
+    else {
         $i.removeClass('checked');
+        delete tab.selected[id];
+        var folder = $i.parent().parent().find('span[isFolder="true"]');
+        if(folder.length > 0){
+            var $folder = $(folder);
+            $folder.removeClass('folder-disabled').addClass('folder');
+            $folder.off('click');
+            $folder.on('click', function(event){
+                event.stopPropagation();
+                var folderId = $folder.attr('folder-id');
+                var folderName = $folder.attr('folder-name');
+                tab.folderNav.add(folderId, folderName);
+                //切换新视图
+                var result = that.queryDataSource(tab.dataSource, folderId);
+                if(result.find)
+                    that.buildCustomList(tab, result.dataSource);
+            })
+        }
+    }
     if(tab.$list.find('li .opt i.checked').length == 0)
         that.$ok.removeClass('btn-ok').addClass('btn-cancel').off('click');
     else
         that.$ok.removeClass('btn-cancel').addClass('btn-ok').off('click').on('click', function() {
             var selected = [];
-            tab.$list.find('li .opt i.checked').each(function () {
-                var uid = $(this).parent().parent().attr('data-id');
-                var user = Users.getInstance().get(uid);
-                selected.push(user);
-            })
+            if(tab.type == that.tabType.custom){
+                for(var k in tab.selected){
+                    selected.push(k);
+                }
+            }
+            else {
+                tab.$list.find('li .opt i.checked').each(function () {
+                    var uid = $(this).parent().parent().attr('data-id');
+                    var user = Users.getInstance().get(uid);
+                    selected.push(user);
+                })
+            }
             that.onSelected({
                 type: tab.type,
                 selected: selected
@@ -246,13 +438,89 @@ selector.prototype.inviteEmail=function(tab){
 
                 });
                 that.close();
-                return alert(member.name + "成功入群!");
+                return alert("已成功邀请入群!");
 
             }
 
             that.renderEmail(tab);
         });
     });
-
-
 };
+
+var FolderNav = function(tab){
+    this.tab = tab;
+    this.$dom = $('<ol class="breadcrumb"></ol>');
+    this.$dom.insertBefore(this.tab.$list);
+    this.items = [];
+    this.add('all', '全部');
+}
+
+FolderNav.prototype.destroy = function(){
+    for(var i = this.items.length - 1; i >= 0; i--){
+        this.items[i].destroy();
+        this.items.pop();
+    }
+    this.$dom.remove();
+}
+
+FolderNav.prototype.add = function(id, name){
+    var index = this.items.length;
+    var item = new FolderNavItem(id, name, index, this);
+    this.items.push(item);
+    this.active(index);
+}
+
+FolderNav.prototype.sub = function(index){
+    for(var i = this.items.length - 1; i > index; i--){
+        this.items[i].destroy();
+        this.items.pop();
+    }
+}
+
+FolderNav.prototype.active = function(index){
+    if(this.activeItem){
+        this.activeItem.blur();
+    }
+    this.items[index].active();
+    this.activeItem = this.items[index];
+    for(var i = this.items.length - 1; i > index; i--){
+        this.items[i].destroy();
+    }
+}
+
+var FolderNavItem = function(id, name, index, parent){
+    this.id = id;
+    this.name = name;
+    this.index = index;
+    this.parent = parent;
+    this.$dom = $('<li>' + this.name + '</li>');
+    this.parent.$dom.append(this.$dom);
+}
+FolderNavItem.prototype.active = function(){
+    this.$dom.empty();
+    this.$dom.text(this.name);
+    this.$dom.off('click');
+}
+FolderNavItem.prototype.blur = function(){
+    var that = this;
+    this.$dom.empty();
+    this.$dom.html('<a href="#">' + this.name + '</a>');
+    this.$dom.on('click', function(){
+        //切换新视图
+        var dataSource;
+        if(that.id == 'all')
+            dataSource = that.parent.tab.dataSource;
+        else {
+            var result = that.parent.tab.selector.queryDataSource(that.parent.tab.dataSource, that.id);
+            if (result.find)
+                dataSource = result.dataSource;
+        }
+        if(dataSource)
+            that.parent.tab.selector.buildCustomList(that.parent.tab, dataSource);
+        that.parent.active(that.index);
+    })
+}
+FolderNavItem.prototype.destroy = function(){
+    this.$dom.off('click');
+    this.$dom.remove();
+}

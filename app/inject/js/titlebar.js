@@ -8,7 +8,10 @@ module.exports = function (node) {
             remote.getCurrentWindow().hide();
         })
         .on('minimize', function () {
-            remote.getCurrentWindow().minimize();
+            var win = remote.getCurrentWindow();
+            if (!win.isFullScreen()) {
+                win.minimize();
+            }
         })
         .on('fullscreen', function () {
             var win = remote.getCurrentWindow();

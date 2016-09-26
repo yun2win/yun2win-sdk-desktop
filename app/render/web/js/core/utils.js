@@ -302,8 +302,10 @@ function parseAttachmentUrl(src,token,name){
     if(src.indexOf("http://")>=0 || src.indexOf("https://")>=0)
         return src;
 
-    return config.baseUrl + src + name+'?access_token=' + token;
-}
+    if(src.indexOf("/content")>=0)
+        return config.baseUrl + src + name+'?access_token=' + token;
+    return config.baseUrl+src+name;
+};
 function parseCapacity(num){
     if(typeof num=="string")
         num=parseInt(num);
@@ -399,6 +401,7 @@ HttpClient.prototype.uploadBase64 = function(url, type,fileName, imageData, toke
     var xhr = new XMLHttpRequest();
     xhr.open("POST", config.baseUrl + url);// + '?fileName=' + fileName);
     xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+    //xhr.setRequestHeader('Content-MD5', 'efg');
     xhr.overrideMimeType("application/octet-stream");
     xhr.setRequestHeader('Content-Type', 'multipart/form-data; boundary='+boundaryKey+'');
     var data_0 = '--' + boundaryKey + '\r\n';

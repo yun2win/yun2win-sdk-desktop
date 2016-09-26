@@ -246,7 +246,7 @@ var y2wIMBridge = function(user, opts){
     };
     this.onUpdateSession = {
         onSuccess: function(session, message){
-            console.log('update session success');
+            console.log('update session and send message success');
             //重新发送消息
             if (message) {
                 that._client.sendMessage(session, message, that.onSendMessage);
@@ -443,6 +443,12 @@ y2wIMBridge.prototype.sendMessage = function(imSession, sync){
     var message = {
         syncs: sync
     };
+    for(var i = 0; i < message.syncs.length; i++){
+        if(message.syncs[i].type == this.syncTypes.message){
+            message.push = { msg: '您有一条新消息!' };
+            break;
+        }
+    }
     this._client.sendMessage(imSession, message, this.onSendMessage);
 };
 

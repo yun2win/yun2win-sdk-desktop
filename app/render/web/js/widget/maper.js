@@ -1,17 +1,19 @@
 var maper=function(){
 
-
-
-    var that=this;
-
+    this.hasGetJS=false;
+    this.ready=false;
 
 
     this.marker=null;
 
-    this.init();
+    //this.init();
 };
 
-maper.prototype.init=function(){
+maper.prototype.init=function(cb){
+
+    if(this.ready)
+        return cb();
+
     var that=this;
     that.dom=$("#mapContainer");
     that.over=that.dom.find(".map-over");
@@ -19,30 +21,44 @@ maper.prototype.init=function(){
     that.over.on('click',that.hide.bind(that));
     that.close.on('click',that.hide.bind(that));
 
-
     try {
+
+        if(!this.hasGetJS){
+            this.hasGetJS=true;
+            $('<script type="text/javascript" src="http://webapi.amap.com/maps?v=1.3&key=83007dcd721230f38cbe90c94a8d121c"></script>').appendTo($("body"));
+        }
+
         that.map = new AMap.Map('container');
         that.map.setZoom(16);
+
+        this.ready=true;
+        cb();
     }catch(ex){
 
         setTimeout(function () {
-            that.init();
-        }, 5000);
+            that.init(cb);
+        }, 2000);
 
     }
 };
 
+
+
 maper.prototype.show=function(longitude,latitude){
-    this.dom.removeClass("hide");
 
-    this.map.setCenter([longitude,latitude]);
+    var that=this;
+    this.init(function(){
+        that.dom.removeClass("hide");
 
-    if(this.marker)
-        this.marker.setMap();
+        that.map.setCenter([longitude,latitude]);
 
-    this.marker = new AMap.Marker({
-        position: [longitude,latitude],
-        map:this.map
+        if(that.marker)
+            that.marker.setMap();
+
+        that.marker = new AMap.Marker({
+            position: [longitude,latitude],
+            map:that.map
+        });
     });
 };
 
