@@ -222,7 +222,6 @@ Browser.prototype.back=function(){
     url=this.history.pop();
     this.changeUrl(url);
 };
-
 Browser.prototype.didShow=function(cb){
     this.over.addClass("hide");
 };
@@ -418,7 +417,17 @@ Browser.prototype.selectContact=function(obj,cb){
     y2w.selector.show(selectorConf);
 };
 Browser.prototype.openImage=function(obj){
-    alert(JSON.stringify(obj));
+
+    var list=[];
+    var link='';
+    for(var i=0;i<obj.list.length;i++){
+        list.push(obj.list[i].url);
+        if(obj.index==i)
+            link=obj.list[i].url;
+    }
+    blueimp.Gallery(list,{index:link});
+
+    //alert(JSON.stringify(obj));
 };
 Browser.prototype.chooseImage = function(cb){
     var that = this;
@@ -456,8 +465,32 @@ Browser.prototype.getData=function(key,cb){
     catch(ex){
         cb(ex);
     }
-}
+};
+Browser.prototype.talkTo=function(userId,cb){
+    try{
+        var contact=currentUser.contacts.get(userId);
+        if(contact) {
+            y2w.openChatBox(userId, "p2p");
+            cb();
+            return;
+        }
+
+        var that=this;
+        currentUser.contacts.remote.add(userId,'',function(error,obj){
+            currentUser.contacts.remote.sync(function(){
+                y2w.openChatBox(userId, "p2p");
+                cb();
+            });
+        });
+    }
+    catch(ex){
+        cb(ex);
+    }
+};
 Browser.prototype.downloadFile = function(url, name, ext){
+    var ipcRenderer = require('electron').ipcRenderer;
+    ipcRenderer.send('downloadFile', url, name, ext);
+    return;
     try{
         var $browserIFrameForDownloadFire = $('#browserIFrameForDownloadFire');
         if(!$browserIFrameForDownloadFire || $browserIFrameForDownloadFire.length == 0) {
@@ -468,5 +501,5 @@ Browser.prototype.downloadFile = function(url, name, ext){
     }catch(e){
 
     }
-}
+};
 

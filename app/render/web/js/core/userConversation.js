@@ -325,8 +325,9 @@ UserConversation.prototype.getAvatarUrl = function(){
             return contact.getAvatarUrl();
         return Users.getInstance().get(this.targetId).getAvatarUrl();
     }
+
     if(this.avatarUrl && $.trim(this.avatarUrl).length>5)
-        return config.baseUrl + this.avatarUrl + '?access_token=' + this.userConversations.user.token;
+        return Util.parseAttachmentUrl(this.avatarUrl,this.userConversations.user.token,"");
     return null;
 };
 /**

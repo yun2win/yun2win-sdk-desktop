@@ -34,7 +34,7 @@ html, body {
 }
 
 /*拖动和禁止选择*/
-#j-wrapper, .left-panel, #chatTitle {
+#j-wrapper, .left-panel {
     -webkit-user-select: none;
     -webkit-app-region: drag;
 }
