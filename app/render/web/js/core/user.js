@@ -179,7 +179,7 @@ var usersRemoteSingleton = (function(){
                         user.account=info.email;
                         user.avatarUrl=info.avatarUrl;
                         user.date=new Date();
-                        if(user.avatarUrl.indexOf('/images/default.jpg') >= 0)
+                        if(!user.avatarUrl || user.avatarUrl.indexOf('/images/default.jpg') >= 0)
                             user.avatarUrl = ' ';
                         _users.localStorage.setUsers(_users.getUsers());
                     }

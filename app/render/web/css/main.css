@@ -2318,7 +2318,7 @@ width: 40px;
 }
 .search .input input{ background: #4ad4d6; border:none;position: absolute;
     left: 10px;
-    width: 150px;
+    width: 115px;
     line-height: 30px;
     border-radius: 3px;
     padding-right: 30px;
@@ -2329,11 +2329,22 @@ width: 40px;
 .search .input .search-close{
     position: absolute;
     z-index: 1;
-    right: 10px;
+    right: 45px;
     color: #fff;
     width: 30px;
     line-height: 29px;
     font-size: 20px;
+    text-align: center;
+    cursor: pointer;
+}
+.search .input .help{
+    position: absolute;
+    display: block;
+    z-index: 1;
+    right: 10px;
+    color: #fff;
+    line-height: 29px;
+    font-size: 12px;
     text-align: center;
     cursor: pointer;
 }
@@ -2694,6 +2705,9 @@ width: 40px;
 }
 .browser .downbtnOver{position: fixed; left:0; top:0; right:0; bottom:0; background: #fff; opacity: .0; z-index: 99;}
 .browser .toolbar .downbtns .opbtn{ width:100%; text-align: center; padding:0;}
+.browser .date{
+    position: absolute;
+}
 
 /*-------------------*/
 @font-face {font-family: 'iconfont';

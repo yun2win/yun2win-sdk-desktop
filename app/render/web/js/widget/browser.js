@@ -194,7 +194,7 @@ Browser.prototype.open=function(url,over){
         this.over.removeClass("hide");
 
     this.history=[];
-    this.defaultBtn.find("a").attr("href",url).removeClass("hide");
+    this.defaultBtn.removeClass("hide").find("a").attr("href",url);
     this.toolbar.css("background-color","#fff").css("color","#666");
     this.color = { bg:"#fff", font:"#666", hoverbg:"#eee" };
     this.lblname.text(url);
@@ -328,11 +328,11 @@ Browser.prototype.getCurrentUser=function(cb){
     }
     cb("无当前用户");
 };
-Browser.prototype.chooseDate=function(time, defaultTime, cb){
+Browser.prototype.chooseDate=function(time, defaultTime, position, cb){
     var format = 'yyyy-MM-dd';
     if(time)
         format = 'yyyy-MM-dd HH:mm';
-    $('#d123').val(defaultTime).removeClass('hide');
+    $('#d123').val(defaultTime).removeClass('hide').css('top', position.y).css('left', position.x);
     WdatePicker({
         el:'d123',
         dateFmt: format,
@@ -379,24 +379,56 @@ Browser.prototype.selectContact=function(obj,cb){
         onSelected: function (obj) {
 
             var list=[];
+            var count=obj.selected.length;
             for(var i=0;i<obj.selected.length;i++) {
                 var id=obj.selected[i];
                 var o=currentUser.contacts.get(id);
-                if(obj) {
+                if(o) {
                     var email= o.account;
-                    if(o.user.account && o.user.account!='')
-                        email=o.user.account;
-                    list.push({
-                        id: o.userId,
-                        name: o.name,
-                        avatarUrl: o.getAvatarUrl(),
-                        email: email
-                    });
+                    var name= o.name;
+                    var avatarUrl= o.getAvatarUrl();
+                    if(!email){
+                        Users.getInstance().remote.get(id,currentUser.token,function(err,user){
+
+                            list.push({
+                                id: user.id,
+                                name: user.name,
+                                avatarUrl: user.getAvatarUrl(),
+                                email: user.account
+                            });
+                            count--;
+                            if(count<=0){
+                                console.log(list);
+                                cb(null,list);
+                            }
+
+                        });
+                    }
+                    else {
+                        list.push({
+                            id: o.userId,
+                            name: name,
+                            avatarUrl: avatarUrl,
+                            email: email
+                        });
+                        count--;
+                        if(count<=0){
+                            console.log(list);
+                            cb(null,list);
+                        }
+                    }
+                }
+                else{
+                    count--;
+                    if(count<=0){
+                        console.log(list);
+                        cb(null,list);
+                    }
                 }
             }
 
-            console.log(list);
-            cb(null,list);
+
+
         }
     };
 
@@ -488,18 +520,45 @@ Browser.prototype.talkTo=function(userId,cb){
     }
 };
 Browser.prototype.downloadFile = function(url, name, ext){
-    var ipcRenderer = require('electron').ipcRenderer;
-    ipcRenderer.send('downloadFile', url, name, ext);
-    return;
+
     try{
-        var $browserIFrameForDownloadFire = $('#browserIFrameForDownloadFire');
-        if(!$browserIFrameForDownloadFire || $browserIFrameForDownloadFire.length == 0) {
-            $browserIFrameForDownloadFire = $('<iframe id="browserIFrameForDownloadFire" class="hide"></iframe>');
-            $browserIFrameForDownloadFire.appendTo($('body'));
-        }
-        $browserIFrameForDownloadFire[0].src = url;
+
+        var ipcRenderer = require('electron').ipcRenderer;
+        ipcRenderer.send('downloadFile', url, name, ext);
+
+
     }catch(e){
 
+        try{
+            var $browserIFrameForDownloadFire = $('#browserIFrameForDownloadFire');
+            if(!$browserIFrameForDownloadFire || $browserIFrameForDownloadFire.length == 0) {
+                $browserIFrameForDownloadFire = $('<iframe id="browserIFrameForDownloadFire" class="hide"></iframe>');
+                $browserIFrameForDownloadFire.appendTo($('body'));
+            }
+            $browserIFrameForDownloadFire[0].src = url;
+        }
+        catch(ex){
+
+        }
     }
 };
+Browser.prototype.upOtherCoversation = function(uids, cb){
+    var syncs = [ { type: currentUser.y2wIMBridge.syncTypes.userConversation } ];
+    for(var i = 0; i < uids.length; i++){
+        var uid = uids[i];
+        var imSession = currentUser.y2wIMBridge.transToIMSessionForY2wIMApp(uid, false);
+        currentUser.y2wIMBridge.sendMessage(imSession, syncs);
+    }
+    if(cb)
+        cb();
+}
+Browser.prototype.syncData = function(list){
+    var obj = {
+        cmd: 'sendMessage',
+        message: {
+            syncs: list
+        }
+    }
+    currentUser.y2wIMBridge.onMessage(obj);
+}
 

@@ -303,8 +303,13 @@ var y2wIMBridge = function(user, opts){
                     console.error('send error: session on server is not exist, update server session and resend message');
                     //更新服务器Session后重新发送消息
                     var foo = session.id.split('_');
-                    var busiSession = that.user.sessions.getById(foo[1]);
-                    var imSession = that.transToIMSession(busiSession, true);
+                    var imSession;
+                    if(foo[0] == that.getY2wIMAppSessionPrefix())
+                        imSession = that.transToIMSessionForY2wIMApp(foo[1], true);
+                    else{
+                        var busiSession = that.user.sessions.getById(foo[1]);
+                        imSession = that.transToIMSession(busiSession, true);
+                    }
                     that._client.updateSession(imSession, message, that.onUpdateSession);
                     break;
                 case y2wIM.sendReturnCode.sessionMTSOnClientHasExpired:
@@ -346,15 +351,16 @@ var y2wIMBridge = function(user, opts){
         }
     };
     this.onMessage = function(obj){
-        if (Notification.permission == 'granted') {
-            new Notification('yun2win', {body: '您有一条新消息'});
-        }
 
         var that = currentUser.y2wIMBridge;
         var message = obj.message;
         if(obj.cmd == 'sendMessage'){
+            var showNoti = false;
             for(var i = 0; i < message.syncs.length; i++){
                 var syncObj = message.syncs[i];
+                if (syncObj.type == 1) {
+                    showNoti = true;
+                }
                 if (syncObj.type == "groupavcall" || syncObj.type == "singleavcall") {
                     var receiversIds = syncObj.content.receiversIds;
                     if (receiversIds) {
@@ -377,6 +383,10 @@ var y2wIMBridge = function(user, opts){
                         that.setSyncStatus(syncObj, that.syncStatus.repeat);
                         break;
                 }
+            }
+
+            if (Notification.permission == 'granted' && showNoti) {
+                new Notification('yun2win', {body: '您有一条新消息'});
             }
         }
     };
@@ -439,6 +449,21 @@ y2wIMBridge.prototype.transToIMSession = function(busiSession, withMembers, time
     }
     return session;
 };
+y2wIMBridge.prototype.getY2wIMAppSessionPrefix = function(){
+    return 'y2wIMApp';
+}
+y2wIMBridge.prototype.getY2wIMAppMTS = function(){
+    return 1264953600000;
+}
+y2wIMBridge.prototype.transToIMSessionForY2wIMApp = function(to, withMembers){
+    var session = {
+        id: this.getY2wIMAppSessionPrefix() + '_' + to,
+        mts: this.getY2wIMAppMTS()
+    };
+    if(withMembers)
+        session.members = [ { uid: to, isDel: false } ];
+    return session;
+}
 y2wIMBridge.prototype.sendMessage = function(imSession, sync){
     var message = {
         syncs: sync

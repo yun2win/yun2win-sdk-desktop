@@ -47,6 +47,11 @@ IM.prototype.createWindow = function () {
         event.sender.insertCSS(inject.css);
         self.resizeWindow();
     });
+    self.window.webContents.on('will-navigate', function (event, url) {
+        if (url.startsWith("file://"))
+            return;
+        event.preventDefault();
+    });
     self.window.webContents.on('new-window', function (event, url) {
         event.preventDefault();
 
@@ -97,7 +102,7 @@ IM.prototype.createWindow = function () {
         self.tray.setTitle(badge);
     });
     ipcMain.on('downloadFile', function (event, url, name, ext) {
-        var savePath = path.join(app.getPath('downloads'), name + ext);
+        var savePath = path.join(app.getPath('downloads'), name + '.' + ext.replace('.',''));
         downloadFile(url, savePath, function (error) {
             shell.showItemInFolder(savePath);
             console.log(url,savePath,error);
