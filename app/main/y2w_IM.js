@@ -36,7 +36,6 @@ IM.prototype.createWindow = function () {
             preload: path.join(__dirname, '../inject/index.js')
         }
     });
-
     self.window.on('closed', function () {
         self.window = null;
     });
@@ -47,28 +46,9 @@ IM.prototype.createWindow = function () {
         event.sender.insertCSS(inject.css);
         self.resizeWindow();
     });
-    self.window.webContents.on('will-navigate', function (event, url) {
-        if (url.startsWith("file://"))
-            return;
-        event.preventDefault();
-    });
     self.window.webContents.on('new-window', function (event, url) {
         event.preventDefault();
-
         shell.openExternal(url);
-        // var query = URL.parse(url).query;
-        // var parms = {};
-        // query.split('&').forEach(function (arg) {
-        //     if (arg.indexOf('=') > -1) {
-        //         var parm = arg.split('=');
-        //         if (parm.length == 2) {
-        //             parms[parm[0]] = parm[1];
-        //         }
-        //     }
-        // });
-        // if (parms.channelSign && self.isLogged()) {
-        //     openrtc(parms);
-        // }
     });
     self.window.webContents.session.on('will-download', function (event, item) {
 

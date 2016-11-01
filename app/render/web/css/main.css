@@ -1287,6 +1287,10 @@ width: 40px;
     margin: 8px 0;
     text-align: center;
 }
+.left-panel .tab-3 a{
+    width: 33.333%;
+}
+
 .left-panel .tab a span{
     display: inline-block;
     width: 32px;

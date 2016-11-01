@@ -12,7 +12,8 @@ var y2wIMBridge = function(user, opts){
         file: 1,
         singleavcall: 2,//单人 音视频 
         groupacall: 3,//多人音视频
-        system:10
+        system:10,
+        copy:11
     };
 
     this.syncTypes = {
@@ -520,10 +521,71 @@ y2wIMBridge.prototype.handleSendMessage = function(){
                         that.handleSendMessage();
                 });
                 break;
-            default :
+            case this.sendTypes.copy:
+                this.handleSendCopyMessage(sendObj,function(){
+                    if(that.sendList.length > 0)
+                        that.handleSendMessage();
+                });
+                break;
+            default:
                 break;
         }
     }
+};
+y2wIMBridge.prototype.handleSendCopyMessage = function(sendObj, cb){
+
+    if(!sendObj.obj)
+        return cb();
+
+    var targetId = sendObj.targetId,
+        scene = sendObj.scene,
+        content = sendObj.obj.content,
+        type = sendObj.obj.type,
+        options = sendObj.options || nop,
+        msgId=sendObj.id ,
+        that = this;
+    this.user.sessions.get(targetId, scene, function (err, session) {
+        //创建消息对象
+        var message = session.messages.getOrCreateMessage({
+            id:msgId,
+            sender: sendObj.sender || that.user.id,
+            to: targetId,
+            type: type,
+            content: content,
+            status: 'storing'
+        },true);
+        //session.messages.add(message);
+        var id = message.id;
+        //显示消息
+        if(options.showMsg)
+            options.showMsg(message);
+        //保存消息对象
+        session.messages.remote.store(message, function(err, msg){
+            if(err){
+                console.error(err);
+                if(options.storeMsgFailed)
+                    options.storeMsgFailed(id);
+                var obj=that.sendList.splice(0, 1);
+                that.onMsgStoreError(obj);
+                cb();
+                return;
+            }
+
+            //发送通知
+            var imSession = that.transToIMSession(session);
+            var syncs = [
+                { type: that.syncTypes.userConversation },
+                { type: that.syncTypes.message, sessionId: imSession.id }
+            ];
+            that.sendMessage(imSession, syncs);
+
+            if(options.storeMsgDone)
+                options.storeMsgDone(id, session.type, targetId, msg);
+
+            that.sendList.splice(0, 1);
+            cb();
+        })
+    });
 };
 y2wIMBridge.prototype.handleSendTextMessage = function(sendObj, cb){
     var targetId = sendObj.targetId,
@@ -689,6 +751,15 @@ y2wIMBridge.prototype.sendTextMessage = function(targetId, scene, text, options)
         text: text,
         options: options,
         type: this.sendTypes.text
+    });
+};
+y2wIMBridge.prototype.sendCopyMessage = function(targetId,scene,content,type,options){
+    this.addToSendList({
+        targetId: targetId,
+        scene: scene,
+        obj: {content:content,type:type},
+        options:options,
+        type: this.sendTypes.copy
     });
 };
 

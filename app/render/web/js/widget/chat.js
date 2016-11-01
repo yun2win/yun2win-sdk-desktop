@@ -64,10 +64,13 @@ chat.prototype.makeChatContent = function(message){
         avatarDOM += '</div>';
         switch (type){
             case 'text':
+            case 'task':
+            case 'av':
                 contentDOM = '<div class="msg"><div class="box"><div class="cnt">';
                 contentDOM += this.getMessage(message);
                 contentDOM += '</div></div></div>';
                 break;
+
             case 'audio':
                 contentDOM = '<div class="msg"><div class="box"><div class="cnt">';
                 contentDOM += this.getMessage(message);
@@ -133,11 +136,13 @@ chat.prototype.getMessage = function(msg) {
         sentStr = (msg.from.id!==currentUser.id)?"收到":"发送";
     switch (msg.type) {
         case 'text':
+        case 'task':
             //var re = /(http[s]?:\/\/[\w\.\/\?\&=@;:]+[\.][\w]{2,4}[\w\.\/\?\&=@;:]+)(?!\&nbsp;)(?![^<]+>)/gi; // 识别链接
             var re = /(http[s]?:\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?)/gi; // 识别链接
             var text = msg.content.text == undefined ? msg.content : msg.content.text;
             str = _$escape(text);
-            str = str.replace(re, "<a href='#' data-href='$1' >$1</a>");
+            //str = str.replace(re, "<a href='#' data-href='$1' >$1</a>");
+            str = str.replace(re, "<a href='$1' target='_blank' >$1</a>");
 
             var matchs=str.match(/\[[^\]]{1,5}\]/ig);
             if(matchs)
@@ -150,6 +155,11 @@ chat.prototype.getMessage = function(msg) {
 
                 str=str.replace(k,"<img class='emoji' src='"+emoji.getUrl()+"'/>");
             }
+            str ="<div class='default-width'>"+str+"</div>";
+            break;
+        case 'av':
+            var text = msg.content.text == undefined ? msg.content : msg.content.text;
+            str = _$escape(text);
             str ="<div class='default-width'>"+str+"</div>";
             break;
         case 'image':
@@ -410,6 +420,113 @@ chat.prototype.contextmenu = function($div){
                     var content="「"+name+text+"」\n—————————\n";
                     y2w.$messageText.val(y2w.$messageText.val()+content);
                     y2w.$messageText.focus();
+
+                    //alert('clicked 1');
+                }
+            },
+            {   label:'转发',
+                check:function(e){
+                    var evt = e || window.event,
+                        target = evt.srcElement || evt.target;
+                    var doms=$(target).parents(".item");
+                    var id=doms.attr("data-id");
+                    if(!id)
+                        return false;
+                    var msg=currentUser.currentSession.messages.get(id);
+                    if(msg.type=="system")
+                        return false;
+                    return true;
+                },
+                action:function(e) {
+                    //$(e.target).parents(".item").attr("data-id")
+                    var evt = e || window.event,
+                        target = evt.srcElement || evt.target;
+                    var doms=$(target).parents(".item");
+                    var scene=doms.attr("data-scene");
+                    var id=doms.attr("data-id");
+
+                    var msg=currentUser.currentSession.messages.get(id);
+                    if(!msg)
+                        return;
+
+                    var dataSource=[];
+
+                    var us=currentUser.userConversations.getUserConversations();
+                    for(var i=0;i<us.length;i++){
+                        var u=us[i];
+                        if(u.type=='p2p' || u.type=='group') {
+                            dataSource.push({
+                                id: u.id,
+                                name: u.name,
+                                avatarUrl: u.getAvatarUrl()
+                            });
+                        }
+                    }
+
+                    var single=false;
+                    var selectorConf = {};
+                    selectorConf.title = '选择';// obj.title;
+                    var tab = {};
+                    tab.type = 99;
+                    tab.avatar = true;//obj.avatar;
+                    tab.selection = single ? 0 : 1;
+                    tab.hidden = {};
+                    tab.selected = {};
+                    tab.title =  "所有会话";//obj.title;
+                    tab.folder = false; //obj.folder;
+                    tab.selectFolder = false;//!!obj.selectFolder;
+                    tab.dataSource =  dataSource;
+                    selectorConf.tabs = [ tab ];
+                    selectorConf.onSelected = function (obj) {
+
+
+                        var selectedUs=[];
+
+                        for(var i=0;i<obj.selected.length;i++){
+                            var id=obj.selected[i];
+
+                            for(var j=0;j<us.length;j++){
+                                var u=us[j];
+                                if(u.id==id) {
+                                    selectedUs.push(u);
+                                    break;
+                                }
+                            }
+                        }
+
+                        var options = {
+                            count:selectedUs.length,
+                            //showMsg: that.showMsg.bind(that),
+                            //storeMsgFailed: that.storeMsgFailed.bind(that),
+                            storeMsgDone: function(){
+                                this.count--;
+                                if(this.count<=0){
+                                    currentUser.userConversations.remote.sync(function(err, count){
+                                        if(err){
+                                            //cb(err);
+                                            return;
+                                        }
+                                        if(count > 0 && y2w.tab.curTabType == y2w.tab.tabType.userConversation)
+                                            y2w.tab.userConversationPanel.render(true);
+                                        //cb();
+                                    });
+                                }
+                            }
+                        };
+
+                        for(var i=0;i<selectedUs.length;i++){
+                            var su=selectedUs[i];
+                            console.log(su.targetId);
+                            console.log(su.type);
+                            currentUser.y2wIMBridge.sendCopyMessage( su.targetId, su.type ,msg.content,msg.type,options);
+                        }
+
+
+
+                    };
+                    y2w.selector.show(selectorConf);
+
+
 
                     //alert('clicked 1');
                 }

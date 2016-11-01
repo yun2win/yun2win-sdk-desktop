@@ -190,6 +190,12 @@ Browser.prototype.open=function(url,over){
     if(!url)
         return;
 
+    if(y2w.dev)
+        url=url.replace("im.yun2win.com:443","127.0.0.1:8080");
+
+    if(this.cUrl==url)
+        return;
+
     if(over)
         this.over.removeClass("hide");
 
@@ -199,6 +205,7 @@ Browser.prototype.open=function(url,over){
     this.color = { bg:"#fff", font:"#666", hoverbg:"#eee" };
     this.lblname.text(url);
     this.changeUrl(url);
+    this.cUrl=url;
 };
 Browser.prototype.show=function(){
     this.dom.removeClass("hide");
@@ -216,6 +223,7 @@ Browser.prototype.show=function(){
 Browser.prototype.hide=function(){
     this.dom.addClass("hide");
     this.iframe.attr("src","");
+    this.cUrl=null;
 };
 Browser.prototype.back=function(){
     var url= this.history.pop();
@@ -435,7 +443,7 @@ Browser.prototype.selectContact=function(obj,cb){
     var tab={
         type: y2w.selector.tabType.contact,
         selection: obj.mode == 'single' ? 0 : 1,
-        hidden: {},
+        hidden: {}
     };
     tab.selected = {};
     if(obj.selected)
@@ -448,6 +456,14 @@ Browser.prototype.selectContact=function(obj,cb){
 
     y2w.selector.show(selectorConf);
 };
+Browser.prototype.confirm=function(title,content,cb){
+
+    if(confirm(content))
+        return cb(null,true);
+
+    cb(null,false);
+};
+
 Browser.prototype.openImage=function(obj){
 
     var list=[];
@@ -522,7 +538,6 @@ Browser.prototype.talkTo=function(userId,cb){
 Browser.prototype.downloadFile = function(url, name, ext){
 
     try{
-
         var ipcRenderer = require('electron').ipcRenderer;
         ipcRenderer.send('downloadFile', url, name, ext);
 
@@ -551,7 +566,7 @@ Browser.prototype.upOtherCoversation = function(uids, cb){
     }
     if(cb)
         cb();
-}
+};
 Browser.prototype.syncData = function(list){
     var obj = {
         cmd: 'sendMessage',
@@ -560,5 +575,5 @@ Browser.prototype.syncData = function(list){
         }
     }
     currentUser.y2wIMBridge.onMessage(obj);
-}
+};
 

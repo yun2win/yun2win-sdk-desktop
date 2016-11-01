@@ -90,13 +90,17 @@ tab.prototype.renderLastMessage = function (msg) {
     if(!!msg.from.name)
         text = (msg.scene != 'p2p' ? ((msg.from.id === currentUser.id) ? "我" : msg.from.name) + ":" : "");
     var type = msg.type;
-    if (!/text|image|file|audio|video|geo|custom|notification|system/i.test(type)) return '';
+    if (!/text|task|image|av|file|audio|video|geo|custom|notification|system/i.test(type)) return '';
     switch (type) {
         case 'text':
+        case 'task':
             text += _$escape(msg.content.text || msg.content);
             break;
         case 'image':
             text += '[图片]';
+            break;
+        case 'av':
+            text += '['+(msg.content.text || msg.content)+']';
             break;
         case 'file':
             msg.file=msg.file||{};
@@ -283,11 +287,12 @@ var userConversationPanel = function (tab) {
         ]
     });
 };
-userConversationPanel.prototype.render = function () {
+userConversationPanel.prototype.render = function (force) {
     var html = '',
         i,
         str,
         info,
+        hasUnRead,
         list = currentUser.userConversations.getUserConversations();
     if (list.length === 0) {
         html += '<p class="empty">暂无会话</p>';
@@ -296,6 +301,8 @@ userConversationPanel.prototype.render = function () {
             info = this.tab.getInfo(this.tabType, list[i]);
             if (!info)
                 continue;
+            if(info.unread>0)
+                hasUnRead=true;
             str = ['<li class="item' + (this.tab.isActive(info) ? ' active' : '') + '' + (info.top ? ' top-item' : '') + '" data-scene="' + info.scene + '" data-id="' + info.id + '">',
                 this.tab.getAvatarDOM(info),
                 '<div class="item-text">',
@@ -314,6 +321,13 @@ userConversationPanel.prototype.render = function () {
     this.$list.html(html);
     this.tab.curTabType = this.tabType;
     this.tab.doCurrent();
+
+    if((hasUnRead && (!this._date || this._date>new Date())) || force ) {
+        this.$list.parent().scrollTop(0);
+        this._date=new Date();
+        this._date.setMinutes(this._date.getMinutes()+1);
+    }
+
 };
 //联系人列表
 var contactPanel = function (tab) {

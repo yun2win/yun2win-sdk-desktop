@@ -21,6 +21,9 @@ var chatInfo = function(){
     this.$editContactTitle = $('#editContactTitle');
     //修改群名称
     this.$editGroupTitle=$('#editGroupTitle');
+    //打开群文件
+    this.$chatFiles_btn=$("#chatFiles_btn");
+
 
     this.$chatGroupNickName = $('#chatGroupNickName');
     this.$chatGroupNickNameText = $('#chatGroupNickNameText');
@@ -28,6 +31,7 @@ var chatInfo = function(){
     this.$chatGroupNickNameEditor = $('#chatGroupNickNameEditor');
 
     this.$btnChatInfo.on('click', this.toggleChatInfo.bind(this));
+    this.$chatFiles_btn.on('click', this.openChatFile.bind(this));
 
     var that=this;
     $("body").on('click',function(e){
@@ -39,6 +43,9 @@ var chatInfo = function(){
             return;
         }
     });
+};
+chatInfo.prototype.openChatFile=function(){
+    y2w.browser.open(config.mappUrl+"#/imGroupFile/index.html?title="+this.chat_file_title+"&sessionId="+currentUser.currentSession.id+"&token="+currentUser.token);
 };
 chatInfo.prototype.getRight = function(){
     var right = {
@@ -124,10 +131,16 @@ chatInfo.prototype.show = function(){
         //this.$chatGroupNickNameInput.addClass('hide').val('');
     }
     var quitText;
-    if(currentUser.currentSession.type == 'p2p')
+    if(currentUser.currentSession.type == 'p2p') {
         quitText = '删除该联系人';
-    else if(currentUser.currentSession.type == 'group')
+        this.chat_file_title="来往文件";
+        this.$chatFiles_btn.text("来往文件");
+    }
+    else if(currentUser.currentSession.type == 'group') {
         quitText = '退出该会话/群';
+        this.chat_file_title="群文件";
+        this.$chatFiles_btn.text("群文件");
+    }
 
     if(right.canQuit){
         this.$chatQuit.removeClass('hide');

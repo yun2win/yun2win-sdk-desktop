@@ -1033,15 +1033,15 @@ MqttClient.prototype._handleConnack = function (packet) {
 
   clearTimeout(this.connackTimer);
 
-  //if (0 === rc) {
-  //  this.emit('connect', packet);
-  //} else if (0 < rc) {
-  //  this.emit('error', rc);
-  //}
+  if (0 === rc) {
+    this.emit('connect', packet);
+  } else if (0 < rc) {
+    this.emit('error', rc);
+  }
 
-    if (0 < rc) {
-        this.emit('error', rc);
-    }
+    //if (0 < rc) {
+    //    this.emit('error', rc);
+    //}
 };
 
 /**
@@ -1154,7 +1154,7 @@ MqttClient.prototype.handleMessage = function (packet, callback) {
     }
     else if (message.returnCode == y2wIM.connectionReturnCode.acceptConnect) {
         //连接成功
-        this.emit('connect');
+        //this.emit('connect');
     }
     else if (message.returnCode == y2wIM.connectionReturnCode.kicked) {
         //断开连接
@@ -1704,6 +1704,7 @@ function connect(opts, cb) {
         opts.zone = obj.zone;
         brokerIP = obj.url;
         //brokerUrl = 'mqtt://118.178.58.29:80';
+        //brokerUrl = 'mqtt://127.0.0.1:3000';
         brokerUrl = 'mqtt://' + brokerIP + ':80';
         //console.log('brokerUrl:' + brokerUrl);
 

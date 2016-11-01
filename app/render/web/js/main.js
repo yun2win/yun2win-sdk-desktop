@@ -4,6 +4,7 @@
 
 var currentUser = Users.getInstance().getCurrentUser();
 var y2w = {
+    dev:false,
     init: function () {
         var that = this;
         this.initNode();
@@ -53,6 +54,12 @@ var y2w = {
         currentUser.y2wIMInit({onStatusChanged:function(status){
             that.networker.change(status);
         }});
+
+        //用户形态定制
+        if(currentUser.role=='customer'){
+            $("#tab").addClass("tab-3").find("#tab-apps").remove();
+        }
+
     },
     initNode: function () {
         this.$logout = $('#j-logout');
@@ -86,7 +93,7 @@ var y2w = {
         this.$openEmojiBtn = $('#j-emoji');
         this.$fileInput = $('#j-uploadFile');
         this.$cloudMsgContainer = $('#j-cloudMsgContainer');
-        this.$devices = $("#j-devices");        
+        this.$devices = $("#j-devices");
     },
     addEvent: function () {
 
@@ -98,7 +105,7 @@ var y2w = {
         this.$okBtn.on('click', this.logout.bind(this));
         this.$sendBtn.on('click', this.sendTextMessage.bind(this));
         this.$messageText.on('keydown', this.inputMessage);
-        this.$chooseFileBtn.on('click', 'a', this.chooseFile.bind(this)); 
+        this.$chooseFileBtn.on('click', 'a', this.chooseFile.bind(this));
         this.$openEmojiBtn.on('click', 'a', this.openEmoji.bind(this));
         this.$fileInput.on('change', this.sendFileMessage.bind(this));
 
@@ -109,7 +116,7 @@ var y2w = {
         this.$addFriendBox.delegate('.j-back','click',this.resetSearchFriend.bind(this));
         this.$addFriendBox.delegate('.j-add','click',this.addFriend.bind(this));
         this.$addFriendBox.delegate('.j-chat','click',this.beginChat.bind(this));
-        this.$addFriendBox.delegate('.j-account','keydown',this.inputAddFriend.bind(this)); 
+        this.$addFriendBox.delegate('.j-account','keydown',this.inputAddFriend.bind(this));
 
         this.$personCard.delegate('.close', 'click', this.hideInfoBox.bind(this));
         this.$personCard.delegate('.j-saveAlias', 'click', this.addFriendAlias.bind(this));
@@ -117,11 +124,9 @@ var y2w = {
         this.$personCard.delegate('.j-del', 'click', this.removeFriend.bind(this));
         this.$personCard.delegate('.j-chat', 'click', this.doChat.bind(this));
         $("#headImg").on('click',this.showInfo2.bind(this));
-        
+
 
         $("#j-chatContent").delegate('.j-mbox','click',this.playAudio);
-
-
 
         //我的信息
         this.$myAvatar.on('click',this.showMyInfo.bind(this));
@@ -139,8 +144,44 @@ var y2w = {
 
         //用户信息
         $("#j-chatContentWrap").on("click",this.showUserInfo.bind(this));
+        //$("#chatbody").on('drop',this.sendDropFileMessage.bind(this));
 
-        $("#chatbody").on('drop',this.sendDropFileMessage.bind(this));
+
+
+        //文件拖拽
+        var that=this;
+        $(document).on({
+            dragleave:function(e){    //拖离
+                e.preventDefault();
+            },
+            drop:function(e){  //拖后放
+                e.preventDefault();
+            },
+            dragenter:function(e){    //拖进
+                e.preventDefault();
+            },
+            dragover:function(e){    //拖来拖去
+                e.preventDefault();
+            }
+        });
+
+        //chat-box
+        var box =$(".chat-box")[0]; //拖拽区域
+        box.addEventListener("drop",function(e){
+            e.preventDefault(); //取消默认浏览器拖拽效果
+            var fileList = e.dataTransfer.files; //获取文件对象
+            //检测是否是拖拽文件到页面的操作
+            if(fileList.length == 0){
+                return false;
+            }
+            that.sendFileMessage(fileList[0]);
+            ////检测文件是不是图片
+            //if(fileList[0].type.indexOf('image') === -1){
+            //    alert("您拖的不是图片！");
+            //    return false;
+            //}
+
+        },false);
 
     },
 
@@ -311,7 +352,7 @@ var y2w = {
     /**
      * 多端登录管理
      * @param  {object} devices 设备
-     * @return {void}       
+     * @return {void}
      */
     loginPorts:function(devices){
         var pc,mobile;
@@ -445,9 +486,9 @@ var y2w = {
             this.openChatBox(userId, 'p2p');
         }else{
             this.$addFriendBox.find(".tip").html("该帐号不存在，请检查你输入的帐号是否正确");
-            this.$addFriendBox.attr('class',"m-dialog done");          
+            this.$addFriendBox.attr('class',"m-dialog done");
         }
-        
+
     },
     cbGetUserInfo:function(err,data){
         if(err){
@@ -473,7 +514,7 @@ var y2w = {
             $info.find(".j-uid").html(user.id);
             if(user.id == currentUser.id){
                 this.$addFriendBox.find(".tip").html("不能添加自己！");
-                this.$addFriendBox.attr('class',"m-dialog done");   
+                this.$addFriendBox.attr('class',"m-dialog done");
             }else{
                 var c=currentUser.contacts.get(user.id);
                 var isFriend=!!c;
@@ -481,10 +522,10 @@ var y2w = {
                     isFriend=false;
                 this.$addFriendBox.addClass(isFriend?"friend":"noFriend");
             }
-            
+
         }else{
             this.$addFriendBox.find(".tip").html("该帐号不存在，请检查你输入的帐号是否正确");
-            this.$addFriendBox.attr('class',"m-dialog done");      
+            this.$addFriendBox.attr('class',"m-dialog done");
         }
     },
     /**
@@ -493,9 +534,9 @@ var y2w = {
     showInfo:function(account,type){
         if(type=="p2p"){
             var user = y2w.cache.getUserById(account);
-            this.showInfoBox(user); 
+            this.showInfoBox(user);
         }
-        
+
     },
 
     //从聊天面板点进去
@@ -503,7 +544,7 @@ var y2w = {
         if($('#j-chatEditor').data('type') =="p2p"){
             var account = $('#j-chatEditor').data('to');
             var user = y2w.cache.getUserById(account);
-            this.showInfoBox(user); 
+            this.showInfoBox(user);
         }
     },
 
@@ -532,7 +573,7 @@ var y2w = {
         $node.find(".j-email").text(user.email ===undefined?"--":user.email)
         $node.find(".j-sign").text(user.sign ===undefined?"--":user.sign)
         if(inMutelist){
-             $node.find(".mutelist>.u-switch").addClass('off');
+            $node.find(".mutelist>.u-switch").addClass('off');
         }
         if(!inBlacklist){
             $node.find(".blacklist>.u-switch").addClass('off');
@@ -568,7 +609,7 @@ var y2w = {
         this.$personCard.removeClass('blacklist');
         this.$personCard.find(".mutelist .u-switch").removeClass('off');
         this.$personCard.find(".blacklist .u-switch").removeClass('off');
-        
+
     },
     // 好友备注
     addFriendAlias:function(){
@@ -582,7 +623,7 @@ var y2w = {
             this.$personCard.find(".e-alias").val(data.alias);
             this.cache.updateFriendAlias(data.account,data.alias);
             this.$personCard.find(".j-nick").text(getNick(data.account));
-            if ($('#j-chatEditor').data('to') === data.account) { 
+            if ($('#j-chatEditor').data('to') === data.account) {
                 this.$chatName.text(getNick(data.account));
             }
         }else{
@@ -598,29 +639,29 @@ var y2w = {
     },
     cbAddFriendInBox:function(error, params){
         if(!error){
-           this.hideInfoBox();
-           this.cache.addFriend(params.friend);
-       }else{
+            this.hideInfoBox();
+            this.cache.addFriend(params.friend);
+        }else{
             alert("添加好友失败")
-       }
+        }
     },
     removeFriend:function(){
         if(window.confirm("确定要删除")){
             var account = this.$personCard.data("account");
             this.mysdk.deleteFriend(account,this.cbRemoveFriend.bind(this));
         }
-        
+
     },
     cbRemoveFriend:function(error, params){
-       if(!error){
-           this.hideInfoBox();
-           this.cache.removeFriend(params.account);
-            if ($('#j-chatEditor').data('to') === params.account) { 
+        if(!error){
+            this.hideInfoBox();
+            this.cache.removeFriend(params.account);
+            if ($('#j-chatEditor').data('to') === params.account) {
                 this.$chatName.text(getNick(params.account));
-            }   
-       }else{
-        alert("删除好友失败")
-       }
+            }
+        }else{
+            alert("删除好友失败")
+        }
     },
     doChat:function(){
         var account = this.$personCard.data("account");
@@ -631,24 +672,24 @@ var y2w = {
         }else if(!this.$loadContacts.is('.hide')){
             $container = this.$loadContacts;
         }else{
-           this.openChatBox(account,"p2p");
-           return;
+            this.openChatBox(account,"p2p");
+            return;
         }
         var $li = $container.find(".m-panel li[data-account]="+account);
         if($li.length>0){
             $li.find(".count").addClass("hide");
             $li.find(".count").text(0);
         }
-        
+
         this.openChatBox(account,"p2p");
     },
 
 
     chooseFile: function () {
-       this.$fileInput.click();
+        this.$fileInput.click();
     },
     openEmoji: function () {
-       this.emojier.show();
+        this.emojier.show();
     },
     syncUserConversations: function(cb){
         cb = cb || nop
@@ -777,7 +818,7 @@ var y2w = {
     sendVideoMessage: function (type, receiverIds, mode, channelId,roomId) {
 
         var scene = this.$chatEditor.data('type'),
-         to = this.$chatEditor.data('to');
+            to = this.$chatEditor.data('to');
         var content = {
             senderId: currentUser.id,
             receiversIds: receiverIds,
@@ -788,18 +829,16 @@ var y2w = {
         };
         currentUser.y2wIMBridge.sendcallVideoMessage(to, scene, content);
     },
-    sendFileMessage: function(){
+    sendFileMessage: function(file){
         var scene = this.$chatEditor.data('type'),
             to = this.$chatEditor.data('to'),
             fileInput = this.$fileInput.get(0),
             that = this;
 
-
-
-        var file = fileInput.files[0];
+        var file =file.size?file:fileInput.files[0];
         if(!file)
             return;
-        if(file.size==0) {
+        if(!file.size) {
             alert("不能传空文件");
             return;
         }
@@ -819,39 +858,8 @@ var y2w = {
             storeMsgFailed: that.storeMsgFailed.bind(that),
             storeMsgDone: that.storeMsgDone.bind(that),
             updateMsg:that.changeUrl.bind(that)
-        }
+        };
         currentUser.y2wIMBridge.sendFileMessage(to, scene, file, options);
-    },
-    sendDropFileMessage:function(){
-         var e=window.event;
-            e.preventDefault();
-
-        if(!currentUser.currentSession)
-            return alert("请打开会话才拖文件!");
-
-            //var upfile = e.dataTransfer.files[0]; //获取要上传的文件对象(可以上传多个)
-        var file = e.dataTransfer.files[0];
-        if(!file)
-            return;
-        if(file.size==0) {
-            alert("不能传空文件");
-            return;
-        }
-        if(scene == 'group') {
-            var sessionMember = currentUser.currentSession.members.getMember(currentUser.id);
-            if (sessionMember.isDelete) {
-                alert('您已不在此群中，不能发送消息');
-                return;
-            }
-        }
-        var options = {
-            showMsg: that.showMsg.bind(that),
-            storeMsgFailed: that.storeMsgFailed.bind(that),
-            storeMsgDone: that.storeMsgDone.bind(that),
-            updateMsg:that.changeUrl.bind(that)
-        }
-        currentUser.y2wIMBridge.sendFileMessage(to, scene, file, options);
-
     },
     showMsg: function(msg){
         //this.$messageText.val('').focus();
@@ -934,10 +942,10 @@ var y2w = {
         $msg.append('<span class="error" onclick="alert(\'消息已进入发送队列,请稍等\');"><i class="icon icon-error"></i></span>');
     },
     /**
-    * 发送消息完毕后的回调
-    * @param error：消息发送失败时，error != null
-    * @param msg：消息主体，类型分为文本、文件、图片、地理位置、语音、视频、自定义消息，通知等
-    */
+     * 发送消息完毕后的回调
+     * @param error：消息发送失败时，error != null
+     * @param msg：消息主体，类型分为文本、文件、图片、地理位置、语音、视频、自定义消息，通知等
+     */
     sendMsgDone: function (error, msg) {
         this.$messageText.val('').focus();
         this.$chatContent.find('.no-msg').remove();
@@ -1374,15 +1382,15 @@ var y2w = {
             $('.callvideo_bg').addClass('hide');
             if(!roomId)
                 roomId =null;
-           var y2wVideo = new RTCManager();
-           y2wVideo.gotoVideoAudio(channelId, roomId, channmode, channtype, currentUser.id, currentUser.name, currentUser.avatarUrl, currentUser.imToken, function (error, data) {
-               if (error) {
-                   return;
-               }
-               //window.open("https://av-api.liyueyun.com/media/?channelSign=" + dataId, "_blank");
-               //已经布好https，可以定义logo等界面访问下面
-               window.open("../yun2win/videoAudio.html?channelSign=" + data.dataId, "_blank");
-           });
+            var y2wVideo = new RTCManager();
+            y2wVideo.gotoVideoAudio(channelId, roomId, channmode, channtype, currentUser.id, currentUser.name, currentUser.avatarUrl, currentUser.imToken, function (error, data) {
+                if (error) {
+                    return;
+                }
+                //window.open("https://av-api.liyueyun.com/media/?channelSign=" + dataId, "_blank");
+                //已经布好https，可以定义logo等界面访问下面
+                window.open("../yun2win/videoAudio.html?channelSign=" + data.dataId, "_blank");
+            });
         });
     }
 };

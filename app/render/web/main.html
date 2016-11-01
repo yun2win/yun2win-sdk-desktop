@@ -40,7 +40,8 @@
                 <a href="javascript:;" data-type=0><span class="userconversation cur"></span></a>
                 <a href="javascript:;" data-type=1><span class="contact"></span></a>
                 <a href="javascript:;" data-type=2><span class="group"></span></a>
-                <a href="javascript:y2w.openChatBox('http://im.yun2win.com:443/','app');" data-type=0><span class="apps"></span></a>
+                <a id="tab-apps" href="javascript:y2w.openChatBox('http://im.yun2win.com:443/','app');" data-type=0><span class="apps"></span></a>
+                <!--<a href="javascript:y2w.openChatBox('http://127.0.0.1:8080/dev.html','app');" data-type=0><span class="apps"></span></a>-->
             </div>
             <div class="tab-panel" id="userConversationPanel" data-type=0>
                 <ul class="list"></ul>
@@ -112,6 +113,7 @@
                     </ul>
                     <div class="chat-quit hide" id="chatQuit">
                         <button class="btn btn-del radius4px hide" id="btnChatQuit"></button>
+                        <button class="editor btn btn-cancel radius5px fr" id="chatFiles_btn">来往文件</button>
                     </div>
                 </div>
 

@@ -12,6 +12,10 @@ var Login = {
 		this.$errorMsg = $('#errorMsg');
 		this.$loginBtn = $('#loginBtn');
 		this.$footer = $('#footer');
+
+		var email=localStorage.getItem("__account__");
+		if(email)
+			this.$email.val(email);
 	},
 
 	initAnimation: function() {	// 添加动画
@@ -20,6 +24,11 @@ var Login = {
 		$wrapper.addClass('fadeInDown animated').one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(){
 			$(this).removeClass().addClass(wrapperClass);
 		});
+
+		var email=localStorage.getItem("_login_email_");
+		if(email){
+			this.$email.val(email);
+		}
 	},
 
 	/**
@@ -76,6 +85,7 @@ var Login = {
                 that.$loginBtn.html('登录').removeAttr('disabled');
                 return;
             }
+			localStorage.setItem("_login_email_",email);
             window.location.href = '../web/main.html';
         })
 	},

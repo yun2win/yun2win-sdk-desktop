@@ -68,7 +68,7 @@ searcher.prototype.searchContract=function(text,items){
     for(var i=0;i<cs.length;i++){
         var c=cs[i];
         if(this.match(text,c.name) || (c.remark && this.match(text,c.remark)) ||
-            (c.title && this.match(text,c.title) )){
+            (c.title && this.match(text,c.title) ) || this.matchPY(text, c.pinyin)){
 
             var key="p2p_"+ c.userId;
             if(items[key])
@@ -104,7 +104,8 @@ searcher.prototype.searchUserConversation=function(text,items){
             continue;
         if(this.match(text,info.name)  || (info.lastMessage && this.match(text,info.lastMessage)) ||
             (c.title && this.match(text,c.title) ) ||
-            (c.type=="group" && this.searchSessionMember(text, c.targetId,info))
+            (c.type=="group" && this.searchSessionMember(text, c.targetId,info)) ||
+            this.matchPY(text, info.pinyin)
         ){
 
             var key= c.type+"_"+ c.targetId;
@@ -180,6 +181,10 @@ searcher.prototype.searchSessionMember=function(text,sessionId,info){
             info.lastMessage="群成员:"+member.name;
             return true;
         }
+        if(member.pinyin && this.matchPY(text,member.pinyin)){
+            info.lastMessage="群成员:"+member.name;
+            return true;
+        }
     }
     return false;
 
@@ -194,6 +199,34 @@ searcher.prototype.match=function(key,text){
     if(!key || !text)
         return false;
     return text.tran().toLowerCase().indexOf(key.toLowerCase())>=0;
+};
+searcher.prototype.matchPY=function(key,pinyin){
+    try {
+        if (!key || !pinyin)
+            return false;
+        if (!/^[a-zA-Z]+$/ig.test(key))
+            return false;
+
+        var sArray = "";
+        var str = "";
+        for (var i = 0; i < pinyin.length; i++) {
+            var py = pinyin[i];
+            str += py;
+            if (py.length > 0)
+                sArray += py[0];
+        }
+
+        if (sArray.indexOf(key) >= 0)
+            return true;
+
+        if (str.indexOf(key) >= 0)
+            return true;
+
+        return false;
+    }
+    catch(ex){
+        return false;
+    }
 };
 
 searcher.prototype.close=function(){

@@ -18,6 +18,7 @@ var Attachments = function(user){
     this.uploadBase64=function(type,fileName,stream,cb){
         cb = cb || nop;
         var url = 'attachments';
+        fileName=encodeURIComponent(fileName);
         baseRequest.uploadBase64(url,type, fileName, stream, this.user.token, function(err, data){
             if(err){
                 cb(err);
