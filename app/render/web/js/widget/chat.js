@@ -509,6 +509,19 @@ chat.prototype.contextmenu = function($div){
                                         if(count > 0 && y2w.tab.curTabType == y2w.tab.tabType.userConversation)
                                             y2w.tab.userConversationPanel.render(true);
                                         //cb();
+
+                                        var currentUC = currentUser.currentSession.getConversation();
+
+                                        var find = false;
+                                        for(var i=0;i<selectedUs.length;i++){
+                                            if(selectedUs[i].id == currentUC.id){
+                                                find = true;
+                                                break;
+                                            }
+                                        }
+                                        if(find){
+                                            y2w.syncMessages(currentUC);
+                                        }
                                     });
                                 }
                             }

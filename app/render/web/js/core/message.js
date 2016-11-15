@@ -175,7 +175,7 @@ messagesRemote.prototype.sync = function(cb) {
                 if (tmpList[i].status == 'stored')
                     tmpList.splice(i, 1);
             }
-            console.log("session["+that.messages.session.id+"].mts:"+ new Date(data['sessionUpdatedAt']).getTime());
+            //console.log("session["+that.messages.session.id+"].mts:"+ new Date(data['sessionUpdatedAt']).getTime());
             //如果服务端session已更新，同步session
             if(that.messages.session.updatedAt < new Date(data['sessionUpdatedAt']).getTime()) {
                 var targetId = that.messages.session.sessions.getTargetId(that.messages.session.id, that.messages.session.type);

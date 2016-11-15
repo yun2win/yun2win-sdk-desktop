@@ -6,7 +6,7 @@ var selector = function(){
     this.$close = $('<i class="close"></i>').appendTo(this.$selector);
     this.$title = $('<h3 class="title"></h3>').appendTo(this.$selector);
     this.$tabs = $('<div class="tabs" id="selectorTabs"></div>').appendTo(this.$selector);
-    this.$ok = $('<button class="btn btn-cancel radius4px j-chat chat hide">确定</button>').appendTo(this.$selector);
+    this.$ok = $('<button class="btn btn-ok radius4px j-chat chat hide">确定</button>').appendTo(this.$selector);
     this.$mask = $('#mask');
     this.tabType = { contact: 0, group: 1,groupmembers:2, email:3, custom: 99 };
     this.tabText = { 0: '选择联系人', 1: '选择群组', 2:'选择群成员', 3:'邮箱邀请'};
@@ -59,7 +59,8 @@ selector.prototype.close = function(){
     this.$title.text('');
     this.$selector.addClass('hide');
     this.$mask.addClass('hide');
-    this.$ok.removeClass('btn-ok').addClass('btn-cancel').addClass('hide').off('click');
+    //this.$ok.removeClass('btn-ok').addClass('btn-cancel').addClass('hide').off('click');
+    this.$ok.addClass('hide').off('click');
 }
 selector.prototype.switchTab = function(tab){
     if(!tab.$tab.attr('class') || tab.$tab.attr('class').indexOf('cur') < 0) {
@@ -179,6 +180,26 @@ selector.prototype.buildList = function(tab, list){
             $(this).on('click', that.toggleCheck.bind(this, that, tab));
         });
         tab.$list.addClass('multi');
+        that.$ok.on('click', function() {
+            var selected = [];
+            if(tab.type == that.tabType.custom){
+                for(var k in tab.selected){
+                    selected.push(k);
+                }
+            }
+            else {
+                tab.$list.find('li .opt i.checked').each(function () {
+                    var uid = $(this).parent().parent().attr('data-id');
+                    var user = Users.getInstance().get(uid);
+                    selected.push(user);
+                })
+            }
+            that.onSelected({
+                type: tab.type,
+                selected: selected
+            });
+            that.close();
+        });
         this.$ok.removeClass('hide');
     }
     else{
@@ -271,6 +292,26 @@ selector.prototype.buildCustomList = function(tab, list){
                 $(this).on('click', that.toggleCheck.bind(this, that, tab));
         });
         tab.$list.addClass('multi');
+        that.$ok.on('click', function() {
+            var selected = [];
+            if(tab.type == that.tabType.custom){
+                for(var k in tab.selected){
+                    selected.push(k);
+                }
+            }
+            else {
+                tab.$list.find('li .opt i.checked').each(function () {
+                    var uid = $(this).parent().parent().attr('data-id');
+                    var user = Users.getInstance().get(uid);
+                    selected.push(user);
+                })
+            }
+            that.onSelected({
+                type: tab.type,
+                selected: selected
+            });
+            that.close();
+        });
         this.$ok.removeClass('hide');
     }
     else{
@@ -376,29 +417,29 @@ selector.prototype.toggleCheck = function(that, tab){
             })
         }
     }
-    if(tab.$list.find('li .opt i.checked').length == 0)
-        that.$ok.removeClass('btn-ok').addClass('btn-cancel').off('click');
-    else
-        that.$ok.removeClass('btn-cancel').addClass('btn-ok').off('click').on('click', function() {
-            var selected = [];
-            if(tab.type == that.tabType.custom){
-                for(var k in tab.selected){
-                    selected.push(k);
-                }
-            }
-            else {
-                tab.$list.find('li .opt i.checked').each(function () {
-                    var uid = $(this).parent().parent().attr('data-id');
-                    var user = Users.getInstance().get(uid);
-                    selected.push(user);
-                })
-            }
-            that.onSelected({
-                type: tab.type,
-                selected: selected
-            });
-            that.close();
-        });
+    //if(tab.$list.find('li .opt i.checked').length == 0)
+    //    that.$ok.removeClass('btn-ok').addClass('btn-cancel').off('click');
+    //else
+    //    that.$ok.removeClass('btn-cancel').addClass('btn-ok').off('click').on('click', function() {
+    //        var selected = [];
+    //        if(tab.type == that.tabType.custom){
+    //            for(var k in tab.selected){
+    //                selected.push(k);
+    //            }
+    //        }
+    //        else {
+    //            tab.$list.find('li .opt i.checked').each(function () {
+    //                var uid = $(this).parent().parent().attr('data-id');
+    //                var user = Users.getInstance().get(uid);
+    //                selected.push(user);
+    //            })
+    //        }
+    //        that.onSelected({
+    //            type: tab.type,
+    //            selected: selected
+    //        });
+    //        that.close();
+    //    });
 }
 selector.prototype.inviteEmail=function(tab){
     var evt = window.event,

@@ -466,10 +466,12 @@ chatInfo.prototype.addChatMembers = function(){
             ],
             onSelected: function (obj) {
                 if (obj.type == y2w.selector.tabType.contact) {
-                    if (obj.selected.length > 1)
-                        that.gotoNewUserConversation(obj);
-                    else
+                    if(obj.selected.length == 0)
+                        return;
+                    else if(obj.selected.length == 1)
                         that.gotoUserConversation(obj.selected[0].id, 'p2p');
+                    else
+                        that.gotoNewUserConversation(obj);
                 }
                 else if (obj.type == y2w.selector.tabType.group) {
                     that.gotoUserConversation(obj.selected[0], 'group');
@@ -499,6 +501,8 @@ chatInfo.prototype.addChatMembers = function(){
                 }
             ],
             onSelected: function (obj) {
+                if(obj.selected.length == 0)
+                    return;
                 that.gotoAddChatMembers(obj);
             }
         }
@@ -737,16 +741,18 @@ chatInfo.prototype.gotoQuitGroup = function(){
     var imSession = currentUser.y2wIMBridge.transToIMSession(currentUser.currentSession);
     //1.SessionMember中删除自己
     currentUser.currentSession.members.remote.remove(member.id, function(err) {
-        if (err) {
+        if (err && err.code != 403) {
             console.error(err);
             return;
         }
         //2.发送通知
-        var syncs = [
-            {type: currentUser.y2wIMBridge.syncTypes.userConversation},
-            {type: currentUser.y2wIMBridge.syncTypes.message, sessionId: imSession.id}
-        ]
-        currentUser.y2wIMBridge.sendMessage(imSession, syncs);
+        if(!err) {
+            var syncs = [
+                {type: currentUser.y2wIMBridge.syncTypes.userConversation},
+                {type: currentUser.y2wIMBridge.syncTypes.message, sessionId: imSession.id}
+            ]
+            currentUser.y2wIMBridge.sendMessage(imSession, syncs);
+        }
         //3.删除userSession
         that.removeUserSession(currentUser.currentSession.id, function(err){
             if(err){

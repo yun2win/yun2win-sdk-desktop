@@ -576,4 +576,10 @@ Browser.prototype.syncData = function(list){
     }
     currentUser.y2wIMBridge.onMessage(obj);
 };
-
+Browser.prototype.callPhoneNumber = function(number, needCallback, cb){
+    cb = cb || function(){};
+    cb('web端不支持拨打电话!');
+    //this.connect.request("phoneCallBack", [], function(err, obj){
+    //
+    //});
+};

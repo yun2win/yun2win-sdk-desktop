@@ -5,6 +5,44 @@ var y2wIMBridge = function(user, opts){
     this._client;
     var that = this;
     var clearIndex = 0;
+    this.reSendTimes = 0;
+
+    this.connectionStatus = {
+        connecting: 0,
+        connected: 1,
+        reconnecting: 2,
+        networkDisconnected: 3,
+        disconnected: 100
+    };
+
+    this.connectionReturnCode = {
+        identifierRejected: 2,
+        unacceptableProtocolVersion: 3,
+        uidIsInvalid: 4,
+        tokenIsInvalid: 5,
+        tokenHasExpired: 6,
+        authenticationServerError: 7,
+        kicked: 10,
+        acceptConnect: 11,
+        requestGateError: 101,
+        serverUnavailable: 99,
+        serverInternalError: 100
+    };
+
+    this.sendReturnCode = {
+        success: 20,
+        timeout: 21,
+        cmdIsInvalid: 22,
+        sessionIsInvalid: 23,
+        sessionIdIsInvalid: 24,
+        sessionMTSIsInvalid: 25,
+        sessionOnServerIsNotExist: 26,
+        sessionMTSOnClientHasExpired: 27,
+        sessionMTSOnServerHasExpired: 28,
+        sessionMembersIsInvalid: 29,
+        invalidFormatOfJSONContent: 30,
+        sessionMembersIsNull: 31
+    };
 
     this.sendList = [];
     this.sendTypes = {
@@ -176,27 +214,25 @@ var y2wIMBridge = function(user, opts){
 
     var onDisconnected = function (returnCode) {
         switch (returnCode) {
-            case y2wIM.connectionReturnCode.uidIsInvalid:
-                console.error('disconnected: uid is invalid');
-                break;
-            case y2wIM.connectionReturnCode.tokenIsInvalid:
-                console.error('disconnected: token is invalid');
-                //break;
-            case y2wIM.connectionReturnCode.tokenHasExpired:
-                console.info('disconnected: token has expired');
+            case that.connectionReturnCode.tokenIsInvalid:
+            case that.connectionReturnCode.tokenHasExpired:
+                if(returnCode == that.connectionReturnCode.tokenIsInvalid)
+                    console.error('disconnected: token is invalid');
+                else
+                    console.info('disconnected: token has expired');
                 that.user.remote.syncIMToken(function(err){
                     if(err){
                         console.error(err);
+                        setTimeout(function(){
+                            that.reconnect(that.user.imToken);
+                        }, 10 * 1000);
                         return;
                     }
                     console.info('sync token success');
-                    that.connect();
+                    that.reconnect(that.user.imToken);
                 });
                 break;
-            case y2wIM.connectionReturnCode.appKeyIsInvalid:
-                console.error('disconnected: appkey is invalid');
-                break;
-            case y2wIM.connectionReturnCode.kicked:
+            case that.connectionReturnCode.kicked:
                 console.warn('disconnected: another divice has connected');
                 alert('您的帐号在其它地方登录，请重新登录');
                 y2w.logout();
@@ -211,30 +247,30 @@ var y2wIMBridge = function(user, opts){
     this.onConnectionStatusChanged = function (status, msg) {
 
         switch (status) {
-            case y2wIM.connectionStatus.connecting:
+            case that.connectionStatus.connecting:
                 if(msg)
-                    console.log('connecting country:' + msg.country + ' zone:' + msg.zone);
+                    console.log('connecting region:' + msg.region);
                 else
                     console.log('connecting');
                 if(opts.onStatusChanged)
                     opts.onStatusChanged('disConnected');
                 break;
-            case y2wIM.connectionStatus.connected:
+            case that.connectionStatus.connected:
                 console.log('connected');
                 if(opts.onStatusChanged)
                     opts.onStatusChanged('connected');
                 break;
-            case y2wIM.connectionStatus.reconnecting:
+            case that.connectionStatus.reconnecting:
                 console.log('reconnecting(' + msg + ')');
                 if(opts.onStatusChanged)
                     opts.onStatusChanged('disConnected');
                 break;
-            case y2wIM.connectionStatus.networkDisconnected:
+            case that.connectionStatus.networkDisconnected:
                 console.warn('unable to connect to the network');
                 if(opts.onStatusChanged)
                     opts.onStatusChanged('disConnected');
                 break;
-            case y2wIM.connectionStatus.disconnected:
+            case that.connectionStatus.disconnected:
                 onDisconnected(msg);
                 if(opts.onStatusChanged)
                     opts.onStatusChanged('disConnected');
@@ -248,30 +284,37 @@ var y2wIMBridge = function(user, opts){
     this.onUpdateSession = {
         onSuccess: function(session, message){
             console.log('update session and send message success');
-            //重新发送消息
-            if (message) {
-                that._client.sendMessage(session, message, that.onSendMessage);
-            }
+            that.reSendTimes = 0;
         },
-        onFailure: function(returnCode, session){
+        onFailure: function(returnCode, session, message){
             switch (returnCode) {
-                case y2wIM.sendReturnCode.sessionIsInvalid:
+                case that.sendReturnCode.sessionIsInvalid:
                     console.error('update session error: session is invalid');
                     break;
-                case y2wIM.sendReturnCode.sessionIdIsInvalid:
+                case that.sendReturnCode.sessionIdIsInvalid:
                     console.error('update session error: session.id is invalid');
                     break;
-                case y2wIM.sendReturnCode.sessionMTSIsInvalid:
+                case that.sendReturnCode.sessionMTSIsInvalid:
                     console.error('update session error: session.mts is invalid');
                     break;
-                case y2wIM.sendReturnCode.cmdIsInvalid:
+                case that.sendReturnCode.cmdIsInvalid:
                     console.error('update session error: cmd is invalid');
                     break;
-                case y2wIM.sendReturnCode.invalidFormatOfJSONContent:
+                case that.sendReturnCode.invalidFormatOfJSONContent:
                     console.error('send error: send content\'s format is not a valid json');
                     break;
-                case y2wIM.sendReturnCode.sessionMTSOnClientHasExpired:
+                case that.sendReturnCode.sessionMTSOnClientHasExpired:
                     console.error('update session error: session mts on client has expired');
+                    break;
+                case that.sendReturnCode.timeout:
+                    console.error('update session timeout, update session again');
+                    if(that.reSendTimes > 10)
+                        that.connect();
+                    else {
+                        //重新发送消息
+                        that.reSendTimes++;
+                        that._client.updateSession(session, message, that.onUpdateSession);
+                    }
                     break;
                 default:
                     console.log(returnCode);
@@ -282,25 +325,26 @@ var y2wIMBridge = function(user, opts){
     this.onSendMessage = {
         onSuccess: function () {
             console.log('send success');
+            that.reSendTimes = 0;
         },
         onFailure: function (returnCode, session, message, data) {
             switch (returnCode) {
-                case y2wIM.sendReturnCode.sessionIsInvalid:
+                case that.sendReturnCode.sessionIsInvalid:
                     console.error('send error: session is invalid');
                     break;
-                case y2wIM.sendReturnCode.sessionIdIsInvalid:
+                case that.sendReturnCode.sessionIdIsInvalid:
                     console.error('send error: session.id is invalid');
                     break;
-                case y2wIM.sendReturnCode.sessionMTSIsInvalid:
+                case that.sendReturnCode.sessionMTSIsInvalid:
                     console.error('send error: session.mts is invalid');
                     break;
-                case y2wIM.sendReturnCode.cmdIsInvalid:
+                case that.sendReturnCode.cmdIsInvalid:
                     console.error('send error: cmd is invalid');
                     break;
-                case y2wIM.sendReturnCode.invalidFormatOfJSONContent:
+                case that.sendReturnCode.invalidFormatOfJSONContent:
                     console.error('send error: send content\'s format is not a valid json');
                     break;
-                case y2wIM.sendReturnCode.sessionOnServerIsNotExist:
+                case that.sendReturnCode.sessionOnServerIsNotExist:
                     console.error('send error: session on server is not exist, update server session and resend message');
                     //更新服务器Session后重新发送消息
                     var foo = session.id.split('_');
@@ -313,7 +357,7 @@ var y2wIMBridge = function(user, opts){
                     }
                     that._client.updateSession(imSession, message, that.onUpdateSession);
                     break;
-                case y2wIM.sendReturnCode.sessionMTSOnClientHasExpired:
+                case that.sendReturnCode.sessionMTSOnClientHasExpired:
                     console.error('send error: session mts on client has expired, get new client session and resend message');
                     //客户端获取Session后重新发送消息
                     var foo = session.id.split('_');
@@ -337,13 +381,27 @@ var y2wIMBridge = function(user, opts){
                         console.log(busiSession.id+"==="+(busiSession.tryTime++));
                     });
                     break;
-                case y2wIM.sendReturnCode.sessionMTSOnServerHasExpired:
+                case that.sendReturnCode.sessionMTSOnServerHasExpired:
                     console.error('send error: session mts on server has expired, update server session and resend message');
                     //更新服务器Session后重新发送消息
                     var foo = session.id.split('_');
                     var busiSession = that.user.sessions.getById(foo[1]);
-                    var imSession = that.transToIMSession(busiSession, true, data);
-                    that._client.updateSession(imSession, message, that.onUpdateSession);
+                    if(busiSession) {
+                        var imSession = that.transToIMSession(busiSession, true, data);
+                        that._client.updateSession(imSession, message, that.onUpdateSession);
+                    }
+                    else
+                        console.error('session is no exist');
+                    break;
+                case that.sendReturnCode.timeout:
+                    console.error('send message timeout, send message again');
+                    if(that.reSendTimes > 10)
+                        that.connect();
+                    else {
+                        //重新发送消息
+                        that.reSendTimes++;
+                        that._client.sendMessage(session, message, that.onSendMessage);
+                    }
                     break;
                 default:
                     console.log(returnCode);
@@ -352,7 +410,6 @@ var y2wIMBridge = function(user, opts){
         }
     };
     this.onMessage = function(obj){
-
         var that = currentUser.y2wIMBridge;
         var message = obj.message;
         if(obj.cmd == 'sendMessage'){
@@ -387,7 +444,12 @@ var y2wIMBridge = function(user, opts){
             }
 
             if (Notification.permission == 'granted' && showNoti) {
-                new Notification('yun2win', {body: '您有一条新消息'});
+                var n = new Notification('yun2win', {body: '您有一条新消息'});
+                n.onshow = function() {
+                    setTimeout(function() {
+                        n.close();
+                    }, 5000);
+                };
             }
         }
     };
@@ -407,14 +469,19 @@ y2wIMBridge.prototype.connect = function(){
         onConnectionStatusChanged: this.onConnectionStatusChanged,
         onMessage: this.onMessage
     };
-    //this._client = y2wIM.connect(opts);
-    y2wIM.connect(opts, function(client){
+    y2wIM.connect(opts, function (client) {
         that._client = client;
     });
 };
+y2wIMBridge.prototype.reconnect = function(token){
+    this._client.reconnect(token);
+};
 y2wIMBridge.prototype.disconnect = function(cb){
     cb = cb || nop;
-    this._client.disconnect(cb);
+    if(this._client && this._client.connected)
+        this._client.disconnect(cb);
+    else
+        cb();
 };
 y2wIMBridge.prototype.transToIMSession = function(busiSession, withMembers, time, force){
     var session = {};
@@ -471,7 +538,7 @@ y2wIMBridge.prototype.sendMessage = function(imSession, sync){
     };
     for(var i = 0; i < message.syncs.length; i++){
         if(message.syncs[i].type == this.syncTypes.message){
-            message.push = { msg: '您有一条新消息!' };
+            message.pns = { msg: '您有一条新消息' };
             break;
         }
     }
@@ -689,9 +756,9 @@ y2wIMBridge.prototype.handleSendSystemMessage = function(sendObj, cb){
 };
 y2wIMBridge.prototype.handleSendCallMessage = function (sendObj, cb) {
     var targetId = sendObj.targetId,
-       scene = sendObj.scene,
-       text = sendObj.content,
-       that = this;
+        scene = sendObj.scene,
+        text = sendObj.content,
+        that = this;
     var msgtype;
     if (scene === 'p2p') {
         msgtype = "singleavcall";
@@ -702,9 +769,9 @@ y2wIMBridge.prototype.handleSendCallMessage = function (sendObj, cb) {
         //发送通知
         var imSession = that.transToIMSession(session);
         var syncs = [
-                { type: that.syncTypes.userConversation },
-                { type: that.syncTypes.message, sessionId: imSession.id },
-                 { type: msgtype, content: text }
+            { type: that.syncTypes.userConversation },
+            { type: that.syncTypes.message, sessionId: imSession.id },
+            { type: msgtype, content: text }
         ];
         that.sendMessage(imSession, syncs);
         that.sendList.splice(0, 1);

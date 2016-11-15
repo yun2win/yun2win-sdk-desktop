@@ -16,7 +16,7 @@ var SessionMembers = function(session){
 
 
         }
-        console.log("session["+this.session.id+"].mts:"+this.createdAt);
+        //console.log("session["+this.session.id+"].mts:"+this.createdAt);
     };
     this.remove = function(userId){
         delete _list[userId];
@@ -32,7 +32,7 @@ var SessionMembers = function(session){
 
 
         }
-        console.log("session["+this.session.id+"].mts:"+this.createdAt);
+        //console.log("session["+this.session.id+"].mts:"+this.createdAt);
         if(list.length > 0)
             _localStorage.setList(_list);
     };

@@ -53,6 +53,25 @@ var y2w = {
         //连接推送服务
         currentUser.y2wIMInit({onStatusChanged:function(status){
             that.networker.change(status);
+            //连接成功开始同步数据
+            if(status == 'connected'){
+                async.series([
+                        function(cb) {
+                            that.syncUserConversations(cb);
+                        },
+                        function(cb) {
+                            that.syncContacts(cb);
+                        },
+                        function(cb) {
+                            that.syncUserSessions(cb);
+                        }],
+                    function(err, results) {
+                        if(err){
+                            console.error(err);
+                            return;
+                        }
+                    });
+            }
         }});
 
         //用户形态定制
