@@ -256,7 +256,7 @@ var y2wIMBridge = function(user, opts){
                     opts.onStatusChanged('disConnected');
                 break;
             case that.connectionStatus.connected:
-                console.log('connected');
+                console.log('connected at ' + Util.dateFormat(new Date(), 'yyyy-MM-dd HH:mm:ss'));
                 if(opts.onStatusChanged)
                     opts.onStatusChanged('connected');
                 break;
@@ -309,7 +309,7 @@ var y2wIMBridge = function(user, opts){
                 case that.sendReturnCode.timeout:
                     console.error('update session timeout, update session again');
                     if(that.reSendTimes > 10)
-                        that.connect();
+                        that.reconnect();
                     else {
                         //重新发送消息
                         that.reSendTimes++;
@@ -396,7 +396,7 @@ var y2wIMBridge = function(user, opts){
                 case that.sendReturnCode.timeout:
                     console.error('send message timeout, send message again');
                     if(that.reSendTimes > 10)
-                        that.connect();
+                        that.reconnect();
                     else {
                         //重新发送消息
                         that.reSendTimes++;

@@ -4,6 +4,7 @@ const path = require('path');
 const electron = require('electron');
 const app = electron.app;
 const shell = electron.shell;
+const dialog = electron.dialog;
 const BrowserWindow = electron.BrowserWindow;
 const ipcMain = electron.ipcMain;
 
@@ -51,28 +52,19 @@ IM.prototype.createWindow = function () {
         shell.openExternal(url);
     });
     self.window.webContents.session.on('will-download', function (event, item) {
-
         var url = item.getURL();
         var id = url.match(/attachments\/[0-9]+\/content/)[0].replace('attachments/', '').replace('/content', '');
         var savePath = path.join(app.getPath('downloads'), id, item.getFilename());
 
-        if (fs.existsSync(savePath)) {
-            shell.showItemInFolder(savePath);
-            return item.cancel();
-        }
-
         self.window.webContents.send('download', {url: url, isDownloading: true});
-
-        item.setSavePath(savePath);
-        item.on('done', function (e, state) {
+        downloadFile(url, savePath, function (error) {
             self.window.webContents.send('download', {url: url, isDownloading: false});
-
-            if (state == "completed") {
-                shell.showItemInFolder(savePath);
-            } else {
-                console.log("Download is cancelled or interrupted that can't be resumed");
+            if (error) {
+                return dialog.showErrorBox("下载失败", JSON.stringify(error));
             }
-        });
+            shell.showItemInFolder(savePath);
+        }, id);
+        item.cancel();
     });
     ipcMain.on('badge-changed', function (event, count) {
         var badge = count ? count + '' : '';
@@ -82,10 +74,9 @@ IM.prototype.createWindow = function () {
         self.tray.setTitle(badge);
     });
     ipcMain.on('downloadFile', function (event, url, name, ext) {
-        var savePath = path.join(app.getPath('downloads'), name + '.' + ext.replace('.',''));
+        var savePath = path.join(app.getPath('downloads'), name + '.' + ext.replace('.', ''));
         downloadFile(url, savePath, function (error) {
             shell.showItemInFolder(savePath);
-            console.log(url,savePath,error);
         });
     });
     // self.window.webContents.openDevTools();

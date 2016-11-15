@@ -1,6 +1,6 @@
 {
   "name": "Y2WIMQuick",
-  "version": "v1.1.0",
+  "version": "v1.1.1",
   "description": "yun2win_IM_SDK快速接入",
   "private": true,
   "author": "QS",
@@ -10,6 +10,7 @@
     "async": "^2.0.0",
     "auto-launch": "^2.1.0",
     "dom-storage": "^2.0.2",
+    "fs-extra": "^1.0.0",
     "request": "^2.75.0",
     "semver": "^5.1.1",
     "titlebar": "^1.4.0"
