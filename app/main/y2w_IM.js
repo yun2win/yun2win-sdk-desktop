@@ -12,7 +12,6 @@ const inject = require('../inject/config');
 const IMTray = require('./y2w_IMTray');
 const localStorage = require('./y2w_localstorage');
 const argv = require('./y2w_ArgvHandler');
-const openrtc = require('./y2w_openRTC');
 const downloadFile = require('./y2w_downloadFile');
 
 
@@ -76,6 +75,9 @@ IM.prototype.createWindow = function () {
     ipcMain.on('downloadFile', function (event, url, name, ext) {
         var savePath = path.join(app.getPath('downloads'), name + '.' + ext.replace('.', ''));
         downloadFile(url, savePath, function (error) {
+            if (error) {
+                return dialog.showErrorBox("下载失败", JSON.stringify(error));
+            }
             shell.showItemInFolder(savePath);
         });
     });

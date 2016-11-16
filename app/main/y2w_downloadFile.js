@@ -1,7 +1,7 @@
 const electron = require('electron');
 const app = electron.app;
 var fs = require('fs');
-var fs1 = require('fs-extra')
+var fs1 = require('fs-extra');
 var path = require('path');
 var request = require('request');
 
@@ -16,7 +16,6 @@ var download = function (url, dest, cb, key) {
         }
         return;
     }
-
 
     var file = fs.createWriteStream(cachePath);
     var sendReq = request.get(url);
