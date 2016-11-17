@@ -1,15 +1,21 @@
 {
-  "dependencies": {},
+  "dependencies": {
+    "archiver": "^1.2.0",
+    "request": "^2.78.0"
+  },
   "devDependencies": {
     "electron-builder": "next",
     "electron-prebuilt": "1.2.5",
     "rimraf": "^2.5.2"
   },
   "scripts": {
-    "pack": "electron-packager ./app quick --all --version=1.2.5 --out=./pack --overwrite",
     "dist:win": "rm -rf ./dist && build -w",
     "dist:mac": "rm -rf ./dist && build -m",
-    "dist": "rm -rf ./dist && build -mw"
+    "dist": "rm -rf ./dist && build -mw",
+    "pack": "node ./product/pack.js",
+    "submit": "node ./product/submit.js",
+    "publish": "node ./product/publish.js",
+    "p&s": "npm run pack && npm run submit"
   },
   "build": {
     "asar": false,
