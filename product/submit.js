@@ -1,8 +1,9 @@
 var fs = require('fs');
 var request = require('request');
+var config = require('./config');
 var version = require('../app/package.json').version;
 
-console.log('开始提交');
+console.log('开始提交   host:', config.host);
 
 var data = {
     version: version,
@@ -10,7 +11,7 @@ var data = {
     file: fs.createReadStream(__dirname + '/dist/' + version + '.zip')
 };
 
-request.post({url: 'http://localhost:8080/desktop/submit', formData: data}, function (error, res, data) {
+request.post({url: config.submit(), formData: data}, function (error, res, data) {
     if (error) {
         throw error;
     }

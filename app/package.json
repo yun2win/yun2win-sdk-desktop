@@ -1,11 +1,12 @@
 {
   "name": "Y2WIMQuick",
-  "version": "1.1.4",
+  "version": "1.1.2",
   "description": "yun2win_IM_SDK快速接入",
   "private": true,
   "author": "QS",
   "license": "CC0-1.0",
   "main": "main.js",
+  "updater-host": "http://121.40.219.42:8080",
   "dependencies": {
     "async": "^2.0.0",
     "auto-launch": "^2.1.0",

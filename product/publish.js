@@ -1,16 +1,20 @@
 var request = require('request');
+var config = require('./config');
 var version = require('../app/package.json').version;
 
+console.log('开始发布   host:', config.host);
 
-var url = 'http://localhost:8080/desktop/publish';
-console.log('开始发布');
-
-request.post(url, {
+request.post(config.publishUrl(), {
     form: {version: version},
     json: true
 }, function (error, res, data) {
     if (error) {
         throw error;
     }
-    console.info('发布成功');
+    if (res.statusCode == 200) {
+        console.log('发布成功');
+    }
+    else {
+        console.error(data.message);
+    }
 });

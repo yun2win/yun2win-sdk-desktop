@@ -12,10 +12,11 @@ const thenjs = require('thenjs');
 const zip = require('cross-zip');
 const plist = require('simple-plist');
 const download = require('./y2w_downloadFile');
+const host = require('../package.json')['updater-host'];
 
 var Updater = function () {
     var self = this;
-    self.url = 'http://localhost:8080/desktop/check';
+    self.url = host + '/desktop/check';
     self.current = {version: semver.clean(app.getVersion())};
     app.on('ready', function () {
         self.check();
@@ -53,6 +54,14 @@ Updater.prototype.update = function () {
     var plistPath = path.join(output, '..', 'Info.plist');
 
     thenjs()
+        .then(function (cont) {
+            if (downloadPath) {
+                fse.remove(downloadPath, cont);
+            }
+            else {
+                cont();
+            }
+        })
         .then(function (cont) {
             download(self.max.url, downloadPath, cont);
         })
