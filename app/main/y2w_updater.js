@@ -1,5 +1,6 @@
 const electron = require('electron');
 const app = electron.app;
+const url = require('url');
 const path = require('path');
 const util = require('util');
 const Emitter = require('events').EventEmitter;
@@ -14,6 +15,7 @@ const download = require('./y2w_downloadFile');
 
 var Updater = function () {
     var self = this;
+    self.url = 'http://localhost:8080/desktop/check';
     self.current = {version: semver.clean(app.getVersion())};
     app.on('ready', function () {
         self.check();
@@ -25,7 +27,7 @@ Updater.prototype.check = function () {
 
     thenjs()
         .then(function (cont) {
-            request.post('http://localhost:8080/desktop/check', {
+            request.post(self.url, {
                 form: {version: self.current.version},
                 json: true
             }, cont);

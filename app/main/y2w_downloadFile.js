@@ -1,7 +1,7 @@
 const electron = require('electron');
 const app = electron.app;
 const fs = require('fs');
-const fs1 = require('fs-extra');
+const fse = require('fs-extra');
 const path = require('path');
 const request = require('request');
 
@@ -38,7 +38,7 @@ var download = function (url, dest, cb, key) {
 
     file.on('finish', function () {
         file.close(function () {
-            fs1.copy(cachePath, dest, cb);
+            fse.copy(cachePath, dest, cb);
         });
     });
 
@@ -54,7 +54,7 @@ var download = function (url, dest, cb, key) {
 function getCachePath(key, name) {
     var cachePath = path.join(app.getPath('temp'), app.getName(), key);
     if (!fs.existsSync(cachePath)) {
-        fs1.mkdirsSync(cachePath);
+        fse.mkdirsSync(cachePath);
     }
     return path.join(cachePath, name);
 }
