@@ -24,12 +24,12 @@ app.on('window-all-closed', function () {
 });
 
 
-updater.on('did-check', function (data) {
+updater.on('did-check', function (current, max) {
     dialog.showMessageBox({
         type: 'question',
         title: '发现新版本',
         message: '是否开始更新',
-        detail: '当前版本: ' + data.currentVersion + '\n最新版本: ' + data.lastVersion,
+        detail: '当前版本: ' + current.version + '\n最新版本: ' + max.version,
         buttons: ['取消', '更新']
     }, function (button) {
         if (button == 1) {

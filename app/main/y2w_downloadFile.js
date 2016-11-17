@@ -1,9 +1,9 @@
 const electron = require('electron');
 const app = electron.app;
-var fs = require('fs');
-var fs1 = require('fs-extra');
-var path = require('path');
-var request = require('request');
+const fs = require('fs');
+const fs1 = require('fs-extra');
+const path = require('path');
+const request = require('request');
 
 var download = function (url, dest, cb, key) {
     var fileName = path.basename(dest);

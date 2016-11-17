@@ -1,4 +1,5 @@
 {
+  "dependencies": {},
   "devDependencies": {
     "electron-builder": "next",
     "electron-prebuilt": "1.2.5",
