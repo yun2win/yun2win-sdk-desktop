@@ -32,7 +32,7 @@ const IMTray = function (controller) {
         type: 'separator'
     }));
     this.menu.append(new MenuItem({
-        label: app.getVersion(),
+        label: '当前版本: v' + app.getVersion(),
         enabled: false
     }));
     this.menu.append(new MenuItem({
