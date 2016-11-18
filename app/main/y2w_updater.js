@@ -33,7 +33,6 @@ var Updater = function () {
     }, 1000 * 60 * 60 * 6);
 };
 
-
 Updater.prototype.check = function () {
     var self = this;
 
