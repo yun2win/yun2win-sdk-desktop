@@ -32,6 +32,13 @@ const IMTray = function (controller) {
         type: 'separator'
     }));
     this.menu.append(new MenuItem({
+        label: app.getVersion(),
+        enabled: false
+    }));
+    this.menu.append(new MenuItem({
+        type: 'separator'
+    }));
+    this.menu.append(new MenuItem({
         label: '退出',
         click: app.quit
     }));

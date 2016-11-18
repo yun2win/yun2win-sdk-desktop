@@ -557,24 +557,34 @@ Browser.prototype.downloadFile = function(url, name, ext){
         }
     }
 };
-Browser.prototype.upOtherCoversation = function(uids, cb){
-    var syncs = [ { type: currentUser.y2wIMBridge.syncTypes.userConversation } ];
-    for(var i = 0; i < uids.length; i++){
-        var uid = uids[i];
-        var imSession = currentUser.y2wIMBridge.transToIMSessionForY2wIMApp(uid, false);
-        currentUser.y2wIMBridge.sendMessage(imSession, syncs);
+Browser.prototype.upOtherCoversation = function(uids,time, cb){
+    if(typeof time=="function"){
+        cb=time;
+        time=0;
     }
-    if(cb)
-        cb();
-};
-Browser.prototype.syncData = function(list){
-    var obj = {
-        cmd: 'sendMessage',
-        message: {
-            syncs: list
+    setTimeout(function () {
+        var syncs = [ { type: currentUser.y2wIMBridge.syncTypes.userConversation } ];
+        for(var i = 0; i < uids.length; i++){
+            var uid = uids[i];
+            var imSession = currentUser.y2wIMBridge.transToIMSessionForY2wIMApp(uid, false);
+            currentUser.y2wIMBridge.sendMessage(imSession, syncs);
         }
-    }
-    currentUser.y2wIMBridge.onMessage(obj);
+        if(cb)
+            cb();
+    },time);
+
+};
+Browser.prototype.syncData = function(list,time){
+    time=time||0;
+    setTimeout(function () {
+        var obj = {
+            cmd: 'sendMessage',
+            message: {
+                syncs: list
+            }
+        };
+        currentUser.y2wIMBridge.onMessage(obj);
+    },time);
 };
 Browser.prototype.callPhoneNumber = function(number, needCallback, cb){
     cb = cb || function(){};

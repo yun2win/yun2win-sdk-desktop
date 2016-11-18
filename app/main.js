@@ -25,23 +25,25 @@ app.on('window-all-closed', function () {
 
 
 updater.on('did-check', function (current, max) {
-    dialog.showMessageBox({
-        type: 'question',
-        title: '发现新版本',
-        message: '是否开始更新',
-        detail: '当前版本: ' + current.version + '\n最新版本: ' + max.version,
-        buttons: ['取消', '更新']
-    }, function (button) {
-        if (button == 1) {
-            updater.update();
-        }
-    })
+    updater.update();
+
+    // dialog.showMessageBox({
+    //     type: 'question',
+    //     title: '发现新版本',
+    //     message: '是否开始更新',
+    //     detail: '当前版本: ' + current.version + '\n最新版本: ' + max.version,
+    //     buttons: ['取消', '更新']
+    // }, function (button) {
+    //     if (button == 1) {
+    //         updater.update();
+    //     }
+    // })
 });
 
 updater.on('did-update', function () {
     dialog.showMessageBox({
         type: 'question',
-        message: '更新成功',
+        message: '更新完成',
         detail: '是否需要重启程序',
         buttons: ['取消', '重启']
     }, function (button) {
@@ -52,5 +54,5 @@ updater.on('did-update', function () {
 });
 
 updater.on('did-error', function (error) {
-    dialog.showErrorBox('更新失败', JSON.stringify(error));
+    // dialog.showErrorBox('更新失败', JSON.stringify(error));
 });
