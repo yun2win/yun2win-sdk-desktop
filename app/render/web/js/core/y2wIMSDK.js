@@ -27,14 +27,14 @@
 
         function defaultId () {
             return '0' + guid();
-        }
+        };
 
         function guid() {
             var S4 = function () {
                 return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
             };
             return (S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4());
-        }
+        };
 
         function sendPacket (client, packet, cb) {
             try {
@@ -51,7 +51,7 @@
                     client.emit('error', err);
                 }
             }
-        }
+        };
 
         function storeAndSend (client, packet, cb) {
             client.outgoingStore.put(packet, function storedPacket (err) {
@@ -60,7 +60,7 @@
                 }
                 sendPacket(client, packet, cb);
             });
-        }
+        };
 
         function nop () {}
 
@@ -79,7 +79,7 @@
                     console.warn('disconnected: another divice has connected');
                     break;
             }
-        }
+        };
 
         var onConnectionStatusChanged = function (status, msg) {
             switch (status) {
@@ -101,7 +101,7 @@
                 default:
                     break;
             }
-        }
+        };
 
         function addNetworkChangeListener(client) {
             addEventListener('online', function () {
@@ -114,7 +114,7 @@
                 client.networkDisconnected = true;
                 client._cleanUp(true);
             });
-        }
+        };
 
         var checkOnTimePeroid = 4 * 1000;
         var checkOnTimeTimeout = 6 * 1000;
@@ -130,19 +130,19 @@
                     if (now - last > checkOnTimeTimeout) {
                         stopCheckOnTime();
                         //重连
-                        client._reconnect();
+                        client.reconnect();
                     }
                     else
                         localStorage.setItem("__y2wIMCheckOnTime__", now);
                 }
                 else
                     localStorage.setItem("__y2wIMCheckOnTime__", now);
-            }, checkOnTimePeroid)
-        }
+            }, checkOnTimePeroid);
+        };
         var stopCheckOnTime = function(){
             if(checkOnTimeId)
                 clearInterval(checkOnTimeId);
-        }
+        };
 
         /**
          * MqttClient constructor
@@ -461,7 +461,7 @@
                 if (that.sendback && that.sendback.onFailure)
                     that.sendback.onFailure(y2wIM.sendReturnCode.timeout, that.session, that.message);
             }, timeout);
-        }
+        };
 
         MqttClient.prototype.addSendQueue = function (y2wMessageId, session, message, sendback) {
             var sendQueue = this.sendQueue[y2wMessageId];
@@ -469,15 +469,15 @@
                 clearTimeout(sendQueue.timer);
 
             this.sendQueue[y2wMessageId] = new MqttClient.sendQueue(session, message, sendback, this.sendTimeout);
-        }
+        };
 
         MqttClient.prototype.getSendQueue = function (y2wMessageId) {
             return this.sendQueue[y2wMessageId];
-        }
+        };
 
         MqttClient.prototype.removeSendQueue = function(y2wMessageId){
             delete this.sendQueue[y2wMessageId];
-        }
+        };
 
         MqttClient.prototype.sendMessageCheck = function (session, message, callback) {
             if (!session) {
@@ -493,7 +493,7 @@
                 return false;
             }
             return true;
-        }
+        };
 
         MqttClient.prototype.updateSessionCheck = function (session, callback) {
             if (!session) {
@@ -513,7 +513,7 @@
                 return false;
             }
             return true;
-        }
+        };
 
         var onSendMessage = {
             onSuccess: function () {
@@ -550,7 +550,7 @@
                         break;
                 }
             }
-        }
+        };
 
         var onUpdateSession = {
             onSuccess: function () {
@@ -578,7 +578,7 @@
                         break;
                 }
             }
-        }
+        };
 
         MqttClient.prototype.updateSession = function (session, message, callback) {
             callback = callback || onUpdateSession;
@@ -633,7 +633,7 @@
                 }
             });
             return this;
-        }
+        };
 
         MqttClient.prototype.sendMessage = function (session, message, callback) {
             callback = callback || onSendMessage;
@@ -678,7 +678,7 @@
                 }
             });
             return this;
-        }
+        };
 
         /**
          * publish - publish <message> to <topic>
@@ -898,7 +898,7 @@
         MqttClient.prototype.disconnect = function (cb) {
             cb = cb || nop;
             this.end(false, cb);
-        }
+        };
 
         /**
          * _reconnect - implement reconnection
@@ -916,16 +916,23 @@
         };
 
         MqttClient.prototype.reconnect = function(token){
+            this.onceDisableReconnect = true;
+            this._cleanUp(true);
             if(token)
                 this.options.password = token;
             this._reconnect();
-        }
+        };
 
         /**
          * _setupReconnect - setup reconnect timer
          */
         MqttClient.prototype._setupReconnect = function () {
             var that = this;
+
+            if(that.onceDisableReconnect){
+                that.onceDisableReconnect = false;
+                return;
+            }
 
             if (that.allowReconnect && !that.networkDisconnected && !that.disconnecting && !that.reconnectTimer && (0 < that.options.reconnectPeriod)) {
                 this.emit('offline');
@@ -1629,7 +1636,7 @@
             reconnecting: 2,
             networkDisconnected: 3,
             disconnected: 100
-        }
+        };
 
         var connectionReturnCode = {
             identifierRejected: 2,
@@ -1643,7 +1650,7 @@
             requestGateError: 101,
             serverUnavailable: 99,
             serverInternalError: 100
-        }
+        };
 
         var sendReturnCode = {
             success: 20,
@@ -1658,7 +1665,7 @@
             sessionMembersIsInvalid: 29,
             invalidFormatOfJSONContent: 30,
             sessionMembersIsNull: 31
-        }
+        };
 
 //var brokerUrl = 'ws://121.40.102.102:3000';
 //var brokerUrl = 'ws://192.168.0.124:3000';
@@ -1691,7 +1698,7 @@
             }
             else
                 cb(null, { region: region, url: brokerIP })
-        }
+        };
         /**
          * connect - connect to an MQTT broker.
          *

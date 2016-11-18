@@ -18,10 +18,21 @@ var Updater = function () {
     var self = this;
     self.url = host + '/desktop/check';
     self.current = {version: semver.clean(app.getVersion())};
+    self.updated = false;
     app.on('ready', function () {
         self.check();
     });
+    // 定时检查更新,如果更新完成变为定时提醒重启
+    setInterval(function () {
+        if (self.updated) {
+            self.emit('did-update');
+        }
+        else {
+            self.check();
+        }
+    }, 1000 * 60 * 60 * 6);
 };
+
 
 Updater.prototype.check = function () {
     var self = this;
@@ -85,6 +96,7 @@ Updater.prototype.update = function () {
             plist.writeFile(plistPath, data, cont);
         })
         .then(function () {
+            self.updated = true;
             self.emit('did-update');
         })
         .fail(function (cont, error) {
