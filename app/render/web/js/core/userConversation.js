@@ -140,15 +140,15 @@ userConversationsRemote.prototype.store = function(userConversation, cb){
         name: userConversation.name,
         type: userConversation.type,
         avatarUrl: userConversation.avatarUrl
-    }
+    };
     baseRequest.put(url, params, that.userConversations.user.token, function(err, data){
         if(err){
             cb(err);
             return;
         }
         cb(null, data);
-    })
-}
+    });
+};
 /**
  * 置顶和取消置顶
  * @param userConversation
@@ -236,6 +236,14 @@ var UserConversation = function(userConversations, obj){
             this.lastMessage.to = null;
         }
     }
+    if(obj['extend']){
+        try{
+            var foo = JSON.parse(obj['extend']);
+            this.extend = foo;
+        }
+        catch(e){
+        }
+    }
 }
 UserConversation.prototype.update = function(obj){
     this.name = obj['name'];
@@ -275,6 +283,14 @@ UserConversation.prototype.update = function(obj){
             this.lastMessage.to = null;
         }
     }
+    if(obj['extend']){
+        try{
+            var foo = JSON.parse(obj['extend']);
+            this.extend = foo;
+        }
+        catch(e){
+        }
+    }
 }
 UserConversation.prototype.toJSON = function(){
     var obj = {
@@ -290,7 +306,9 @@ UserConversation.prototype.toJSON = function(){
         visiable: this.visiable,
         top: this.top,
         firstGetLastMessges: this.firstGetLastMessges
-    }
+    };
+    if(this.extend)
+        obj.extend = this.extend;
     if(this.lastMessage){
         obj.lastMessage = {
             scene: this.lastMessage.scene,

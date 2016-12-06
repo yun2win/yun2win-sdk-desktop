@@ -1347,6 +1347,9 @@ width: 40px;
 .left-panel .tab-panel .custom-item.add-contact{
     border-bottom: solid 1px #12a8a9;
 }
+.left-panel .tab-panel .custom-item .panel_image{
+    width:36px;
+}
 .left-panel .tab-panel .list .item:hover, .left-panel .tab-panel .custom-item:hover{
     background-color: #38cccc;
 }

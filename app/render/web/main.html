@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="css/animate.css"/>
     <link rel="stylesheet" href="css/jquery-ui.css"/>
     <link rel="stylesheet" href="css/main.css"/>
+    <script src="../Gruntfile.js"></script>
 </head>
 <body id="chatbody">
 <div class="wrapper box-sizing">
@@ -23,7 +24,6 @@
                 <span class="hide"><img src="images/pen.png" class="u-modify" id="showMyInfo"></span>
                 <span class="exit" title="退出" id="j-logout">退出</span>
                 <span id="networkStatus" class="status"></span>
-
             </div>
             <div class="search" id="searchpanel">
                 <div class="input">
@@ -40,13 +40,22 @@
                 <a href="javascript:;" data-type=0><span class="userconversation cur"></span></a>
                 <a href="javascript:;" data-type=1><span class="contact"></span></a>
                 <a href="javascript:;" data-type=2><span class="group"></span></a>
-                <a id="tab-apps" href="javascript:y2w.openChatBox('http://im.yun2win.com:443/','app');" data-type=0><span class="apps"></span></a>
+                <a id="tab-apps" href="javascript:y2w.openChatBox('http://im.yun2win.com:8080/','app');" data-type=0><span class="apps"></span></a>
                 <!--<a href="javascript:y2w.openChatBox('http://127.0.0.1:8080/dev.html','app');" data-type=0><span class="apps"></span></a>-->
             </div>
             <div class="tab-panel" id="userConversationPanel" data-type=0>
                 <ul class="list"></ul>
             </div>
             <div class="tab-panel hide" id="contactPanel" data-type=1>
+                <div class="custom-item" id="openfwh" onclick="y2w.openChatBox('http://im.yun2win.com:8080/#/consultation/home.html','app');" >
+                <!--<div class="custom-item" id="openfwh" onclick="y2w.openChatBox('http://127.0.0.1:8080/dev.html#/consultation/home.html','app');" >-->
+                    <div class="item-avatar">
+                        <img  class="panel_image" src="images/fwh.png" alt="企业服务"/>
+                    </div>
+                    <div class="item-text">
+                        <p class="single-row color-white">企业服务</p>
+                    </div>
+                </div>
                 <div class="custom-item add-contact" id="addFriend">
                     <div class="item-avatar">
                         <img  class="panel_image" src="images/contact_add.png" alt="添加好友"/>

@@ -1,12 +1,12 @@
 {
-  "name": "Y2WIMQuick",
-  "version": "1.1.5",
-  "description": "yun2win",
+  "name": "koni.tv",
+  "version": "1.0.0",
+  "description": "叩tv",
   "private": true,
-  "author": "QS",
+  "author": "yun2win",
   "license": "CC0-1.0",
   "main": "main.js",
-  "updater-host": "http://update.yun2win.com:8080",
+  "updater-host": "http://update.yun2win.com:8888",
   "dependencies": {
     "async": "^2.0.0",
     "auto-launch": "^2.1.0",
