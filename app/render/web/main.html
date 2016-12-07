@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="css/animate.css"/>
     <link rel="stylesheet" href="css/jquery-ui.css"/>
     <link rel="stylesheet" href="css/main.css"/>
-    <script src="../Gruntfile.js"></script>
 </head>
 <body id="chatbody">
 <div class="wrapper box-sizing">
@@ -40,14 +39,14 @@
                 <a href="javascript:;" data-type=0><span class="userconversation cur"></span></a>
                 <a href="javascript:;" data-type=1><span class="contact"></span></a>
                 <a href="javascript:;" data-type=2><span class="group"></span></a>
-                <a id="tab-apps" href="javascript:y2w.openChatBox('http://im.yun2win.com:8080/','app');" data-type=0><span class="apps"></span></a>
+                <a id="tab-apps" href="javascript:y2w.openChatBox('http://enterprise.yun2win.com/','app');" data-type=0><span class="apps"></span></a>
                 <!--<a href="javascript:y2w.openChatBox('http://127.0.0.1:8080/dev.html','app');" data-type=0><span class="apps"></span></a>-->
             </div>
             <div class="tab-panel" id="userConversationPanel" data-type=0>
                 <ul class="list"></ul>
             </div>
             <div class="tab-panel hide" id="contactPanel" data-type=1>
-                <div class="custom-item" id="openfwh" onclick="y2w.openChatBox('http://im.yun2win.com:8080/#/consultation/home.html','app');" >
+                <div class="custom-item" id="openfwh" onclick="y2w.openChatBox('http://enterprise.yun2win.com/#/consultation/home.html','app');" >
                 <!--<div class="custom-item" id="openfwh" onclick="y2w.openChatBox('http://127.0.0.1:8080/dev.html#/consultation/home.html','app');" >-->
                     <div class="item-avatar">
                         <img  class="panel_image" src="images/fwh.png" alt="企业服务"/>
@@ -356,6 +355,7 @@
 <script src="js/3rd/ajaxFileUpload.js"></script>
 <script src="js/3rd/md5.js"></script>
 <script src="js/3rd/char.js"></script>
+<script src="js/3rd/jquery.qrcode.min.js"></script>
 <script src="js/3rd/actionConnect.js"></script>
 <script src="js/common/utils.js"></script>
 <script src="js/core/config.js?v=0.1"></script>
@@ -386,7 +386,6 @@
 
 
 <script src="js/main.js?v=0.1"></script>
-
 
 
 <div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls">

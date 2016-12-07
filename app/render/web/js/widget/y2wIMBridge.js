@@ -758,9 +758,9 @@ y2wIMBridge.prototype.handleSendSystemMessage = function(sendObj, cb){
 };
 y2wIMBridge.prototype.handleSendCallMessage = function (sendObj, cb) {
     var targetId = sendObj.targetId,
-        scene = sendObj.scene,
-        text = sendObj.content,
-        that = this;
+       scene = sendObj.scene,
+       text = sendObj.content,
+       that = this;
     var msgtype;
     if (scene === 'p2p') {
         msgtype = "singleavcall";
@@ -771,9 +771,9 @@ y2wIMBridge.prototype.handleSendCallMessage = function (sendObj, cb) {
         //发送通知
         var imSession = that.transToIMSession(session);
         var syncs = [
-            { type: that.syncTypes.userConversation },
-            { type: that.syncTypes.message, sessionId: imSession.id },
-            { type: msgtype, content: text }
+                { type: that.syncTypes.userConversation },
+                { type: that.syncTypes.message, sessionId: imSession.id },
+                 { type: msgtype, content: text }
         ];
         that.sendMessage(imSession, syncs);
         that.sendList.splice(0, 1);

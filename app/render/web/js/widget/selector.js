@@ -207,8 +207,8 @@ selector.prototype.buildList = function(tab, list){
             $(this).on('click', function(){
                 var selected = [];
                 //if(tab.type == that.tabType.group){
-                    var targetId = $(this).attr('data-id');
-                    selected.push(targetId);
+                var targetId = $(this).attr('data-id');
+                selected.push(targetId);
                 //}
 
                 that.onSelected({

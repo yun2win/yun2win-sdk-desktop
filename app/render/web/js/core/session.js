@@ -82,6 +82,7 @@ var Sessions = function(user){
             if(_targetList[k].id == id && _targetList[k].type == type)
                 return k.replace(type + '-', '');
         }
+        console.error('targetId is not exist id:' + id + ' type:' + type);
         throw "targetId is not exist";
     };
     this.add = function(targetId, obj){

@@ -19,7 +19,7 @@
   },
   "build": {
     "asar": false,
-    "appId": "org.develar.quick",
+    "appId": "com.liyueyun.desktop.koni.tv",
     "mac": {
       "icon": "app/assets/osx/icon.icns",
       "dmg": {
@@ -40,7 +40,7 @@
     },
     "win": {
       "icon": "app/assets/win/icon.ico",
-      "iconUrl": "http://121.40.215.56:8888/icon.ico"
+      "iconUrl": "http://update.yun2win.com:8888/temp/icon.ico"
     }
   }
 }

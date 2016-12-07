@@ -1464,7 +1464,7 @@ width: 40px;
 }
 /*-------------------右部-------------------*/
 .right-panel {
-    background: #e3efef url('../images/logo_right.png') center center no-repeat;
+    background: #E7F2F2 url('../images/logo_right.png') center center no-repeat;
     position:absolute;
     left: 260px;
     top: 0px;
@@ -2731,3 +2731,9 @@ width: 40px;
     -webkit-text-stroke-width: 0.2px;
     -moz-osx-font-smoothing: grayscale;
 }
+
+.qrcode_over{ position: fixed; z-index:1000; background: rgba(0,0,0,.5); left:0;top:0;right:0;bottom:0;}
+.qrcode_over .qrcode_body{ position: fixed; z-index:1001; width:300px; height:300px; left:50%; top:50%; margin-left: -150px; margin-top: -150px;    background: #fff;
+    border-radius: 3px;}
+.qrcode_over .qrcode_body h1{text-align: center; line-height: 60px;}
+.qrcode_over .qrcode_body .qrcode{ margin: 0px auto; width:200px;}

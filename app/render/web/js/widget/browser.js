@@ -191,7 +191,7 @@ Browser.prototype.open=function(url,over){
         return;
 
     if(y2w.dev)
-        url=url.replace("im.yun2win.com:443","127.0.0.1:8080");
+        url=url.replace("enterprise.yun2win.com","127.0.0.1:8080");
 
     if(this.cUrl==url)
         return;
@@ -592,4 +592,17 @@ Browser.prototype.callPhoneNumber = function(number, needCallback, cb){
     //this.connect.request("phoneCallBack", [], function(err, obj){
     //
     //});
+};
+Browser.prototype.share=function(title,pic,url,remark,types,cb){
+    var d=$("<div class='qrcode_over'><div class='qrcode_body'><h1>请使用微信扫一扫</h1><div class='qrcode'></div></div></div>").appendTo($("body"));
+
+    d.find(".qrcode").qrcode({
+        render: "canvas", //table方式
+        width: 200, //宽度
+        height:200, //高度
+        text: url //任意内容
+    });
+    d.click(function(){
+       d.remove();
+    });
 };

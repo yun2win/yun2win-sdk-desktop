@@ -1,7 +1,8 @@
 {
   "name": "koni.tv",
-  "version": "1.0.0",
-  "description": "叩tv",
+  "productName": "叩.tv",
+  "description": "叩.tv",
+  "version": "1.0.1",
   "private": true,
   "author": "yun2win",
   "license": "CC0-1.0",

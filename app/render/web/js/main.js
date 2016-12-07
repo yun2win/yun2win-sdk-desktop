@@ -55,16 +55,27 @@ var y2w = {
             that.networker.change(status);
             //连接成功开始同步数据
             if(status == 'connected'){
-                async.series([
-                        function(cb) {
-                            that.syncUserConversations(cb);
-                        },
-                        function(cb) {
-                            that.syncContacts(cb);
-                        },
-                        function(cb) {
-                            that.syncUserSessions(cb);
-                        }],
+                var syncList = [
+                    function(cb) {
+                        that.syncUserConversations(cb);
+                    },
+                    function(cb) {
+                        that.syncContacts(cb);
+                    },
+                    function(cb) {
+                        that.syncUserSessions(cb);
+                    }
+                ];
+                if(currentUser.currentSession){
+                    var userConversation = currentUser.currentSession.getConversation();
+                    if(userConversation){
+                        syncList.push(function(cb) {
+                            that.syncMessages(userConversation, cb);
+                        });
+                    }
+                }
+
+                async.series(syncList,
                     function(err, results) {
                         if(err){
                             console.error(err);
